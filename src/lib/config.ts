@@ -5,6 +5,7 @@ import type { Config } from "@/config.ts";
 export async function getConfig(cwd = process.cwd()) {
     const { config } = await loadConfig<Config>({
         cwd,
+
         sources: [
             {
                 files: "sqts.config",

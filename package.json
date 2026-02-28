@@ -1,23 +1,50 @@
 {
     "name": "sqts",
-    "main": "./dist/index.js",
+    "version": "0.0.0",
+    "description": "Type-safe SQL queries for TypeScript",
+    "repository": "https://github.com/floffah/sqts",
+    "homepage": "https://floffah.github.io/sqts",
+    "workspaces": [
+        "example"
+    ],
+    "keywords": [
+        "sql",
+        "typescript",
+        "type-safe",
+        "database",
+        "codegen"
+    ],
+    "license": "MIT",
+    "files": [
+        "dist",
+        "package.json",
+        "LICENSE",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "bin": {
+        "sqts": "./dist/cli.js"
+    },
+    "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
+    "types": "./dist/index.d.cts",
     "exports": {
         ".": {
             "development": "./src/index.ts",
             "import": "./dist/index.mjs",
-            "require": "./dist/index.js"
+            "require": "./dist/index.cjs"
         },
         "./adapters/bun-sqlite": {
             "development": "./src/adapters/bun-sqlite.ts",
             "import": "./dist/adapters/bun-sqlite.mjs",
-            "require": "./dist/adapters/bun-sqlite.js"
+            "require": "./dist/adapters/bun-sqlite.cjs"
         },
         "./config": {
             "development": "./src/config.ts",
             "import": "./dist/config.mjs",
-            "require": "./dist/config.js"
+            "require": "./dist/config.cjs"
         },
         "./*": "./*"
     },
@@ -25,15 +52,15 @@
         "exports": {
             ".": {
                 "import": "./dist/index.mjs",
-                "require": "./dist/index.js"
+                "require": "./dist/index.cjs"
             },
             "./adapters/bun-sqlite": {
                 "import": "./dist/adapters/bun-sqlite.mjs",
-                "require": "./dist/adapters/bun-sqlite.js"
+                "require": "./dist/adapters/bun-sqlite.cjs"
             },
             "./config": {
                 "import": "./dist/config.mjs",
-                "require": "./dist/config.js"
+                "require": "./dist/config.cjs"
             },
             "./*": "./*"
         }
@@ -59,6 +86,8 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
+        "commander": "^14.0.3",
+        "glob": "^13.0.6",
         "ts-morph": "^27.0.2",
         "unconfig": "^7.5.0"
     }

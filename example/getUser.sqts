@@ -1,0 +1,15 @@
+import type { User } from "./";
+
+const { id } = sqts.props as {
+    id: string
+}
+
+export const users: User[] = []
+
+---
+
+SELECT
+    u.id AS users[].id,
+    u.email AS "users[].email"
+FROM users u
+WHERE u.id = $id;

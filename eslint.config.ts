@@ -8,6 +8,6 @@ export default defineConfig(
     tseslint.configs.recommended,
     prettier,
     {
-        ignores: ["dist", "node_modules", "src/**/*.test.*"],
+        ignores: ["dist", "node_modules", "**/*.test.*", "**/*.sqts.*"],
     },
 );

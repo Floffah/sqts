@@ -1,10 +1,10 @@
-import { Database } from "bun:sqlite";
+import { Database, SQLQueryBindings } from "bun:sqlite";
 
 import type { QueryMeta, QueryResultRow } from "@/adapters/types.ts";
 import { defineExecutor } from "@/lib/executor.ts";
 
 interface BunSQLiteStatement {
-    all(...params: unknown[]): unknown[];
+    all(...params: SQLQueryBindings[]): unknown[];
 }
 
 interface BunSQLiteLikeDatabase {

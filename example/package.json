@@ -1,0 +1,11 @@
+{
+    "name": "sqts-example",
+    "private": true,
+    "main": "index.ts",
+    "dependencies": {
+        "sqts": "file:../"
+    },
+    "scripts": {
+        "codegen": "bun run ../dist/cli.cjs compile"
+    }
+}

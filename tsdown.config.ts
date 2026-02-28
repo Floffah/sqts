@@ -9,11 +9,11 @@ export default defineConfig({
     ],
     dts: true,
     format: ["esm", "cjs"],
-    platform: "neutral",
+    platform: "node",
     exports: {
         all: true,
         devExports: "development",
-        exclude: ["cli", /^[a-zA-Z0-9]+-[a-zA-Z0-9_]{8}$/],
+        exclude: ["cli", /^[a-zA-Z0-9]+-[a-zA-Z0-9_-]{8}$/],
     },
     deps: {
         neverBundle: ["bun:sqlite"],
