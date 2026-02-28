@@ -13,8 +13,8 @@ afterEach(() => {
 
 test("bun-sqlite execute returns normalized rows", async () => {
     const db = new Database(":memory:");
-    db.exec("CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT NOT NULL)");
-    db.exec("INSERT INTO users (id, email) VALUES (1, 'alice@example.com')");
+    db.run("CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT NOT NULL)");
+    db.run("INSERT INTO users (id, email) VALUES (1, 'alice@example.com')");
 
     setDefaultDatabase(db);
 

@@ -1,12 +1,7 @@
-import type { MappingDescriptor, OutputDeclaration } from "./types.ts";
-import type { FunctionDeclaration } from "ts-morph";
 import { VariableDeclarationKind } from "ts-morph";
+import type { FunctionDeclaration } from "ts-morph";
 
-function getElementType(outputTypeText: string) {
-    return outputTypeText.endsWith("[]")
-        ? outputTypeText.slice(0, -2)
-        : outputTypeText;
-}
+import type { MappingDescriptor, OutputDeclaration } from "./types.ts";
 
 export function populateOutputFunctionBody({
     outputFunction,
@@ -111,14 +106,12 @@ export function populateOutputFunctionBody({
     });
 
     if (output.mode === "many") {
-        const elementType = getElementType(output.typeText);
-
         outputFunction.addVariableStatement({
             declarationKind: VariableDeclarationKind.Const,
             declarations: [
                 {
                     name: output.rootName,
-                    type: output.typeText,
+                    type: "QueryOutput",
                     initializer: "[]",
                 },
             ],
@@ -126,7 +119,7 @@ export function populateOutputFunctionBody({
 
         outputFunction.addStatements([
             "for (const row of rows) {",
-            `    const value = {} as ${elementType};`,
+            "    const value = {} as QueryOutput[number];",
             ...inlineMapStatementsFor("value").map((line) => `    ${line}`),
             `    ${output.rootName}.push(value);`,
             "}",
@@ -146,7 +139,7 @@ export function populateOutputFunctionBody({
         declarations: [
             {
                 name: "value",
-                initializer: `{} as ${output.typeText}`,
+                initializer: "{} as QueryOutput",
             },
         ],
     });

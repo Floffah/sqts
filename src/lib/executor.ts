@@ -1,6 +1,6 @@
 import type { NormalizedQueryResult, QueryMeta } from "@/adapters/types.ts";
 
-type Executor = (
+export type Executor = (
     query: string,
     params: unknown[],
     meta?: QueryMeta,

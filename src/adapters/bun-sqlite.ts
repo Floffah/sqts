@@ -46,7 +46,10 @@ function resolveDefaultDatabase() {
     return defaultDatabase;
 }
 
-function normalizeRows(rows: unknown[], meta?: QueryMeta): QueryResultRow[] {
+export function normalizeRows(
+    rows: unknown[],
+    meta?: QueryMeta,
+): QueryResultRow[] {
     return rows.map((row) => {
         if (typeof row !== "object" || row === null || Array.isArray(row)) {
             throw new Error(

@@ -6,7 +6,7 @@ import { User } from "./";
 
 type QueryProps = { id: string; };
 
-export default async function execGetUsersQuery({ id }: QueryProps): Promise<User[]> {
+export default async function execGetUsersQuery({ id }: QueryProps): Promise<QueryOutput> {
     const query = \`SELECT u.id AS "users[].id", u.email AS "users[].email" FROM users u
 WHERE u.id = ?;\`;
     const params = [id];
@@ -16,9 +16,9 @@ WHERE u.id = ?;\`;
             { aliasKey: "users[].id", targetPath: ["id"] },
             { aliasKey: "users[].email", targetPath: ["email"] },
         ] as const;
-    const users: User[] = [];
+    const users: QueryOutput = [];
     for (const row of rows) {
-        const value = {} as User;
+        const value = {} as QueryOutput[number];
         for (const mapping of mappings) {
             let current: Record<string, any> = value as Record<string, any>;
             const path = mapping.targetPath;
@@ -40,7 +40,8 @@ WHERE u.id = ?;\`;
 
     return users;
 }
-"
+
+type QueryOutput = User[];"
 `;
 
 exports[`Should compile single-row output with mapped aliases 1`] = `
@@ -49,7 +50,7 @@ import { User } from "./";
 
 type QueryProps = { id: string; };
 
-export default async function execGetUserQuery({ id }: QueryProps): Promise<User> {
+export default async function execGetUserQuery({ id }: QueryProps): Promise<QueryOutput> {
     const query = \`SELECT u.id AS "user.id", u.email AS "user.email" FROM users u
 WHERE u.id = ?;\`;
     const params = [id];
@@ -63,7 +64,7 @@ WHERE u.id = ?;\`;
         throw new Error("Expected exactly one row for user, got " + rows.length);
     }
 
-    const value = {} as User;
+    const value = {} as QueryOutput;
     const row = rows[0]!;
     for (const mapping of mappings) {
         let current: Record<string, any> = value as Record<string, any>;
@@ -83,7 +84,8 @@ WHERE u.id = ?;\`;
 
     return value;
 }
-"
+
+type QueryOutput = User;"
 `;
 
 exports[`Should compile mutation without output declaration 1`] = `
@@ -96,6 +98,5 @@ export default async function execUpdateUserQuery({ id }: QueryProps): Promise<v
     const params = [id];
     await __tsqlExecute(query, params, { queryName: "updateUser", sourceFile: "updateUser" });
     return;
-}
-"
+}"
 `;

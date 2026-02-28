@@ -135,7 +135,7 @@ export async function compile(
             "Query",
         isDefaultExport: true,
         isAsync: true,
-        returnType: output ? `Promise<${output.typeText}>` : "Promise<void>",
+        returnType: output ? "Promise<QueryOutput>" : "Promise<void>",
     });
 
     if (propsVarName) {
@@ -146,6 +146,11 @@ export async function compile(
     }
 
     if (output) {
+        finalSourceFile.addTypeAlias({
+            name: "QueryOutput",
+            type: output.typeText,
+        });
+
         populateOutputFunctionBody({
             outputFunction,
             normalizedSql,
@@ -167,5 +172,8 @@ export async function compile(
         });
     }
 
-    return finalSourceFile.getFullText();
+    finalSourceFile.fixUnusedIdentifiers();
+    finalSourceFile.organizeImports();
+
+    return finalSourceFile.getFullText().trim();
 }
