@@ -9,18 +9,9 @@ export default {
     endOfLine: "lf",
     embeddedLanguageFormatting: "auto",
 
-    importOrder: [
-        "<TYPES>",
-        "<THIRD_PARTY_MODULES>",
-        "",
-        "@/(.*)$",
-        "",
-        "^[.]",
-    ],
+    importOrder: ["<THIRD_PARTY_MODULES>", "", "@/(.*)$", "", "^[.]"],
     importOrderSortSpecifiers: true,
     importOrderGroupNamespaceSpecifiers: true,
 
-    plugins: [
-        "@ianvs/prettier-plugin-sort-imports",
-    ]
+    plugins: ["@ianvs/prettier-plugin-sort-imports"],
 };

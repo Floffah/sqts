@@ -1,6 +1,5 @@
-import type { MappingDescriptor, OutputDeclaration } from "./types.ts";
-
-import { compilerError } from "./errors.ts";
+import { compilerError } from "@/compiler/errors.ts";
+import type { MappingDescriptor, OutputDeclaration } from "@/compiler/types.ts";
 
 interface SelectBounds {
     selectStart: number;

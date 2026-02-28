@@ -1,10 +1,6 @@
-import type {
-    NormalizedQueryResult,
-    QueryMeta,
-    QueryResultRow,
-} from "./types.ts";
 import { Database } from "bun:sqlite";
 
+import type { QueryMeta, QueryResultRow } from "@/adapters/types.ts";
 import { defineExecutor } from "@/lib/executor.ts";
 
 interface BunSQLiteStatement {

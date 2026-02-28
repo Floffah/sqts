@@ -1,9 +1,9 @@
 import { rm } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { CompilerOptions } from "ts-morph";
 import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { nanoid } from "nanoid";
+import type { CompilerOptions } from "ts-morph";
 import { getCompilerOptionsFromTsConfig } from "ts-morph";
 
 import { normalizeRows } from "@/adapters/bun-sqlite.ts";

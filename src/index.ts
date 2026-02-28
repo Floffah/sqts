@@ -1,10 +1,10 @@
-export { compile } from "./compiler/index.ts";
+export { compile } from "@/compiler/index.ts";
 
 export type {
     NormalizedQueryResult,
     QueryExecutor,
     QueryMeta,
     QueryResultRow,
-} from "./adapters/types.ts";
+} from "@/adapters/types.ts";
 
-export * from "./lib/executor.ts";
+export * from "@/lib/executor.ts";

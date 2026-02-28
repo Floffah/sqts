@@ -1,7 +1,7 @@
 import { VariableDeclarationKind } from "ts-morph";
 import type { FunctionDeclaration } from "ts-morph";
 
-import type { MappingDescriptor, OutputDeclaration } from "./types.ts";
+import type { MappingDescriptor, OutputDeclaration } from "@/compiler/types.ts";
 
 export function populateOutputFunctionBody({
     outputFunction,

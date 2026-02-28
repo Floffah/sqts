@@ -1,11 +1,11 @@
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import type { CompilerOptions } from "ts-morph";
 import { expect, test } from "bun:test";
+import type { CompilerOptions } from "ts-morph";
 import { getCompilerOptionsFromTsConfig } from "ts-morph";
 
-import { compile } from "./index.ts";
+import { compile } from "@/compiler/index.ts";
 
 const compilerOptions = getCompilerOptionsFromTsConfig(
     resolve(process.cwd(), "tsconfig.json"),

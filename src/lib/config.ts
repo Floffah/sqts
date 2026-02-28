@@ -1,5 +1,6 @@
-import type { Config } from "@/config.ts";
 import { loadConfig } from "unconfig";
+
+import type { Config } from "@/config.ts";
 
 export async function getConfig(cwd = process.cwd()) {
     const { config } = await loadConfig<Config>({

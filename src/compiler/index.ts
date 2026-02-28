@@ -1,21 +1,20 @@
-import type { CompileOptions } from "./types.ts";
 import type { SourceFile } from "ts-morph";
 import { Project } from "ts-morph";
-
-import { getConfig } from "@/lib/config.ts";
 
 import {
     populateMutationFunctionBody,
     populateOutputFunctionBody,
-} from "./codegen.ts";
-import { extractDeclarations } from "./declarations.ts";
-import { compilerError } from "./errors.ts";
+} from "@/compiler/codegen.ts";
+import { extractDeclarations } from "@/compiler/declarations.ts";
+import { compilerError } from "@/compiler/errors.ts";
 import {
     hasTopLevelSelectQuery,
     normalizeSelectAliases,
     parseSqlVariables,
-} from "./sql.ts";
-import { splitTemplateInput } from "./template.ts";
+} from "@/compiler/sql.ts";
+import { splitTemplateInput } from "@/compiler/template.ts";
+import type { CompileOptions } from "@/compiler/types.ts";
+import { getConfig } from "@/lib/config.ts";
 
 async function resolveExecutorModule(
     filename: string,

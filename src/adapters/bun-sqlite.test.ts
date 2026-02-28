@@ -5,7 +5,7 @@ import {
     clearDefaultDatabase,
     execute,
     setDefaultDatabase,
-} from "./bun-sqlite.ts";
+} from "@/adapters/bun-sqlite.ts";
 
 afterEach(() => {
     clearDefaultDatabase();

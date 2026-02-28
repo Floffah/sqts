@@ -1,8 +1,8 @@
-import type { OutputDeclaration, OutputMode } from "./types.ts";
 import type { SourceFile, VariableStatement } from "ts-morph";
 import { Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
 
-import { compilerError } from "./errors.ts";
+import { compilerError } from "@/compiler/errors.ts";
+import type { OutputDeclaration, OutputMode } from "@/compiler/types.ts";
 
 interface ExtractedDeclarations {
     output: OutputDeclaration | null;
