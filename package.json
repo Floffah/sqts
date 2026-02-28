@@ -1,17 +1,66 @@
 {
-  "name": "tsql",
-  "module": "src/index.ts",
-  "type": "module",
-  "scripts": {
-    "build": "bun build src/index.ts src/cli.ts --sourcemap=linked --outdir=dist --minify"
-  },
-  "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-    "@types/bun": "latest",
-    "prettier": "^3.8.1",
-    "ts-morph": "^27.0.2"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+    "name": "tsql",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "development": "./src/index.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        },
+        "./adapters/bun-sqlite": {
+            "development": "./src/adapters/bun-sqlite.ts",
+            "import": "./dist/adapters/bun-sqlite.mjs",
+            "require": "./dist/adapters/bun-sqlite.js"
+        },
+        "./config": {
+            "development": "./src/config.ts",
+            "import": "./dist/config.mjs",
+            "require": "./dist/config.js"
+        },
+        "./executor-Byyu_Gsd": {
+            "default": "./dist/executor-Byyu_Gsd.js"
+        },
+        "./executor-CeMFjOX9": {
+            "default": "./dist/executor-CeMFjOX9.mjs"
+        },
+        "./*": "./*"
+    },
+    "publishConfig": {
+        "exports": {
+            ".": {
+                "import": "./dist/index.mjs",
+                "require": "./dist/index.js"
+            },
+            "./adapters/bun-sqlite": {
+                "import": "./dist/adapters/bun-sqlite.mjs",
+                "require": "./dist/adapters/bun-sqlite.js"
+            },
+            "./config": {
+                "import": "./dist/config.mjs",
+                "require": "./dist/config.js"
+            },
+            "./executor-Byyu_Gsd": "./dist/executor-Byyu_Gsd.js",
+            "./executor-CeMFjOX9": "./dist/executor-CeMFjOX9.mjs",
+            "./*": "./*"
+        }
+    },
+    "scripts": {
+        "build": "tsdown --minify",
+        "dev": "tsdown --watch"
+    },
+    "devDependencies": {
+        "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+        "@types/bun": "latest",
+        "prettier": "^3.8.1",
+        "tsdown": "^0.21.0-beta.2"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "dependencies": {
+        "ts-morph": "^27.0.2",
+        "unconfig": "^7.5.0"
+    }
 }

@@ -1,7 +1,8 @@
 import type { ProjectOptions, VariableStatement } from "ts-morph";
 
 export interface CompileOptions extends ProjectOptions {
-    tsqlImportName?: string;
+    cwd?: string;
+    executorModule?: string;
 }
 
 export type OutputMode = "single" | "many";

@@ -15,6 +15,8 @@ export function populateOutputFunctionBody({
     variableNames,
     mappings,
     output,
+    queryName,
+    sourceFile,
 }: {
     outputFunction: FunctionDeclaration;
     normalizedSql: string;
@@ -22,6 +24,8 @@ export function populateOutputFunctionBody({
     variableNames: string[];
     mappings: MappingDescriptor[];
     output: OutputDeclaration;
+    queryName: string;
+    sourceFile: string;
 }) {
     const inlineMapStatementsFor = (targetVar: string) => [
         "for (const mapping of mappings) {",
@@ -58,11 +62,21 @@ export function populateOutputFunctionBody({
         declarationKind: VariableDeclarationKind.Const,
         declarations: [
             {
-                name: "output",
+                name: "params",
                 initializer:
                     variableNames.length > 0
-                        ? `execSql(query, ${variableNames.join(", ")})`
-                        : "execSql(query)",
+                        ? `[${variableNames.join(", ")}]`
+                        : "[]",
+            },
+        ],
+    });
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "output",
+                initializer: `await __tsqlExecute(query, params, { queryName: ${JSON.stringify(queryName)}, sourceFile: ${JSON.stringify(sourceFile)} })`,
             },
         ],
     });
@@ -123,7 +137,7 @@ export function populateOutputFunctionBody({
 
     outputFunction.addStatements([
         "if (rows.length !== 1) {",
-        `    throw new Error("Expected exactly one row for ${output.rootName}, got " + rows.length);`,
+        `    throw new Error(\"Expected exactly one row for ${output.rootName}, got \" + rows.length);`,
         "}",
     ]);
 
@@ -142,5 +156,57 @@ export function populateOutputFunctionBody({
         declarations: [{ name: "row", initializer: "rows[0]!" }],
     });
 
-    outputFunction.addStatements([...inlineMapStatementsFor("value"), "return value;"]);
+    outputFunction.addStatements([
+        ...inlineMapStatementsFor("value"),
+        "return value;",
+    ]);
+}
+
+export function populateMutationFunctionBody({
+    outputFunction,
+    normalizedSql,
+    extraHeaderCode,
+    variableNames,
+    queryName,
+    sourceFile,
+}: {
+    outputFunction: FunctionDeclaration;
+    normalizedSql: string;
+    extraHeaderCode: string;
+    variableNames: string[];
+    queryName: string;
+    sourceFile: string;
+}) {
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "query",
+                initializer: (writer) =>
+                    writer.write("`").write(normalizedSql).write("`"),
+            },
+        ],
+    });
+
+    if (extraHeaderCode) {
+        outputFunction.addStatements(extraHeaderCode);
+    }
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "params",
+                initializer:
+                    variableNames.length > 0
+                        ? `[${variableNames.join(", ")}]`
+                        : "[]",
+            },
+        ],
+    });
+
+    outputFunction.addStatements([
+        `await __tsqlExecute(query, params, { queryName: ${JSON.stringify(queryName)}, sourceFile: ${JSON.stringify(sourceFile)} });`,
+        "return;",
+    ]);
 }

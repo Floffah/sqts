@@ -116,6 +116,10 @@ function findTopLevelSelectBounds(sql: string): SelectBounds | null {
     };
 }
 
+export function hasTopLevelSelectQuery(sql: string) {
+    return findTopLevelSelectBounds(sql) !== null;
+}
+
 function splitTopLevelSelectItems(selectList: string) {
     const items: string[] = [];
     let start = 0;

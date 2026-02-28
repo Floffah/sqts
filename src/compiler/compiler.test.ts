@@ -1,4 +1,6 @@
-import { resolve } from "path";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import type { CompilerOptions } from "ts-morph";
 import { expect, test } from "bun:test";
 import { getCompilerOptionsFromTsConfig } from "ts-morph";
@@ -9,9 +11,10 @@ const compilerOptions = getCompilerOptionsFromTsConfig(
     resolve(process.cwd(), "tsconfig.json"),
 ) as unknown as CompilerOptions;
 
-function compileFixture(input: string, filename = "getUser") {
+async function compileFixture(input: string, filename = "getUser") {
     return compile(input.trim(), filename, {
         compilerOptions,
+        executorModule: "tsql/adapters/bun-sqlite",
     });
 }
 
@@ -51,18 +54,61 @@ FROM users u
 WHERE u.id = $id;
 `;
 
+const singleMutationTestFile = `
+const { id } = tsql.props as {
+    id: string
+}
+
+---
+
+UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $id;
+`;
+
 test("Should compile many-row output with mapped aliases", async () => {
-    const output = compileFixture(manyRowsTestFile, "getUsers");
+    const output = await compileFixture(manyRowsTestFile, "getUsers");
     expect(output).toMatchSnapshot();
 });
 
 test("Should compile single-row output with mapped aliases", async () => {
-    const output = compileFixture(singleRowTestFile, "getUser");
+    const output = await compileFixture(singleRowTestFile, "getUser");
     expect(output).toMatchSnapshot();
 });
 
+test("Should load executor module from config when override is absent", async () => {
+    const configDir = await mkdtemp(join(tmpdir(), "tsql-config-"));
+
+    await writeFile(
+        join(configDir, "tsql.config.json"),
+        JSON.stringify({
+            executor: {
+                module: "custom/executor-module",
+            },
+        }),
+    );
+
+    const output = await compile(singleRowTestFile.trim(), "fromConfig", {
+        compilerOptions,
+        cwd: configDir,
+    });
+
+    expect(output).toContain(
+        'import { execute as __tsqlExecute } from "custom/executor-module";',
+    );
+});
+
+test("Should error when executor config is missing", async () => {
+    const emptyDir = await mkdtemp(join(tmpdir(), "tsql-empty-config-"));
+
+    expect(
+        compile(singleRowTestFile.trim(), "missingConfig", {
+            compilerOptions,
+            cwd: emptyDir,
+        }),
+    ).rejects.toThrow("Missing executor config");
+});
+
 test("Should error when exported output declaration is missing", async () => {
-    expect(() =>
+    expect(
         compileFixture(
             `
 import { User } from "./";
@@ -71,11 +117,11 @@ const { id } = tsql.props as { id: string }
 SELECT u.id AS "user.id" FROM users u WHERE u.id = $id;
 `,
         ),
-    ).toThrow("Missing exported output declaration");
+    ).rejects.toThrow("Missing exported output declaration");
 });
 
 test("Should error when multiple exported outputs are present", async () => {
-    expect(() =>
+    expect(
         compileFixture(
             `
 import { User } from "./";
@@ -86,11 +132,11 @@ export const users: User[] = []
 SELECT u.id AS "user.id" FROM users u WHERE u.id = $id;
 `,
         ),
-    ).toThrow("Exactly one exported output declaration is required");
+    ).rejects.toThrow("Exactly one exported output declaration is required");
 });
 
 test("Should error when select item is missing AS alias", async () => {
-    expect(() =>
+    expect(
         compileFixture(
             `
 import { User } from "./";
@@ -102,11 +148,11 @@ FROM users u
 WHERE u.id = $id;
 `,
         ),
-    ).toThrow("SELECT item is missing an AS alias");
+    ).rejects.toThrow("SELECT item is missing an AS alias");
 });
 
 test("Should error when alias root does not match exported output", async () => {
-    expect(() =>
+    expect(
         compileFixture(
             `
 import { User } from "./";
@@ -118,11 +164,11 @@ FROM users u
 WHERE u.id = $id;
 `,
         ),
-    ).toThrow('must start with "users[]."');
+    ).rejects.toThrow('must start with "users[]."');
 });
 
 test("Should error when alias path is invalid", async () => {
-    expect(() =>
+    expect(
         compileFixture(
             `
 import { User } from "./";
@@ -134,5 +180,10 @@ FROM users u
 WHERE u.id = $id;
 `,
         ),
-    ).toThrow("contains unsupported nested array paths");
+    ).rejects.toThrow("contains unsupported nested array paths");
+});
+
+test("Should compile mutation without output declaration", async () => {
+    const output = await compileFixture(singleMutationTestFile, "updateUser");
+    expect(output).toMatchSnapshot();
 });

@@ -1,13 +1,53 @@
-import { Project } from "ts-morph";
-import type { SourceFile } from "ts-morph";
-
-import { populateOutputFunctionBody } from "./codegen.ts";
-import { extractDeclarations } from "./declarations.ts";
-import { normalizeSelectAliases, parseSqlVariables } from "./sql.ts";
-import { splitTemplateInput } from "./template.ts";
 import type { CompileOptions } from "./types.ts";
+import type { SourceFile } from "ts-morph";
+import { Project } from "ts-morph";
 
-function hoistImports(inputSourceFile: SourceFile, finalSourceFile: SourceFile) {
+import { getConfig } from "@/lib/config.ts";
+
+import {
+    populateMutationFunctionBody,
+    populateOutputFunctionBody,
+} from "./codegen.ts";
+import { extractDeclarations } from "./declarations.ts";
+import { compilerError } from "./errors.ts";
+import {
+    hasTopLevelSelectQuery,
+    normalizeSelectAliases,
+    parseSqlVariables,
+} from "./sql.ts";
+import { splitTemplateInput } from "./template.ts";
+
+async function resolveExecutorModule(
+    filename: string,
+    {
+        executorModule,
+        cwd,
+    }: {
+        executorModule?: string;
+        cwd?: string;
+    },
+) {
+    if (executorModule) {
+        return executorModule;
+    }
+
+    const config = await getConfig(cwd);
+    const configuredModule = config?.executor?.module;
+
+    if (configuredModule) {
+        return configuredModule;
+    }
+
+    compilerError(
+        filename,
+        'Missing executor config. Add tsql.config.ts with `executor.module`, or pass `executorModule` to compile(). Example: defineConfig({ executor: { module: "tsql/adapters/bun-sqlite" } })',
+    );
+}
+
+function hoistImports(
+    inputSourceFile: SourceFile,
+    finalSourceFile: SourceFile,
+) {
     const imports = inputSourceFile.getImportDeclarations();
     for (const importDec of imports) {
         finalSourceFile.addImportDeclaration({
@@ -32,11 +72,16 @@ function hoistImports(inputSourceFile: SourceFile, finalSourceFile: SourceFile) 
     }
 }
 
-export function compile(
+export async function compile(
     input: string,
     filename: string,
-    { tsqlImportName = "tsql", ...projectOptions }: CompileOptions = {},
+    { executorModule, cwd, ...projectOptions }: CompileOptions = {},
 ) {
+    const resolvedExecutorModule = await resolveExecutorModule(filename, {
+        executorModule,
+        cwd,
+    });
+
     const { tsBlock, sqlBlock } = splitTemplateInput(input);
     const project = new Project({
         ...projectOptions,
@@ -48,8 +93,8 @@ export function compile(
     const finalSourceFile = project.createSourceFile("output.ts");
 
     finalSourceFile.addImportDeclaration({
-        moduleSpecifier: tsqlImportName,
-        namedImports: [{ name: "compiledApi", alias: "tsql" }],
+        moduleSpecifier: resolvedExecutorModule,
+        namedImports: [{ name: "execute", alias: "__tsqlExecute" }],
     });
 
     const { output, propsVarName, propsVarStatement } = extractDeclarations(
@@ -59,15 +104,28 @@ export function compile(
     );
 
     const { sql: queryWithParams, variableNames } = parseSqlVariables(sqlBlock);
-    const { sql: normalizedSql, mappings } = normalizeSelectAliases(
-        queryWithParams.trim(),
-        output,
-        filename,
-    );
+    const trimmedQuery = queryWithParams.trim();
+    let normalizedSql = trimmedQuery;
+    let mappings: { aliasKey: string; targetPath: string[] }[] = [];
+
+    if (output) {
+        const normalized = normalizeSelectAliases(
+            trimmedQuery,
+            output,
+            filename,
+        );
+        normalizedSql = normalized.sql;
+        mappings = normalized.mappings;
+    } else if (hasTopLevelSelectQuery(trimmedQuery)) {
+        compilerError(
+            filename,
+            "Missing exported output declaration. Add `export const user: User = {}` or `export const users: User[] = []`.",
+        );
+    }
 
     hoistImports(inputSourceFile, finalSourceFile);
     propsVarStatement?.remove();
-    output.variableStatement.remove();
+    output?.variableStatement.remove();
 
     const outputFunction = finalSourceFile.addFunction({
         name:
@@ -76,7 +134,8 @@ export function compile(
             queryName.slice(1) +
             "Query",
         isDefaultExport: true,
-        returnType: output.typeText,
+        isAsync: true,
+        returnType: output ? `Promise<${output.typeText}>` : "Promise<void>",
     });
 
     if (propsVarName) {
@@ -86,14 +145,27 @@ export function compile(
         });
     }
 
-    populateOutputFunctionBody({
-        outputFunction,
-        normalizedSql,
-        extraHeaderCode: inputSourceFile.getFullText().trim(),
-        variableNames,
-        mappings,
-        output,
-    });
+    if (output) {
+        populateOutputFunctionBody({
+            outputFunction,
+            normalizedSql,
+            extraHeaderCode: inputSourceFile.getFullText().trim(),
+            variableNames,
+            mappings,
+            output,
+            queryName,
+            sourceFile: filename,
+        });
+    } else {
+        populateMutationFunctionBody({
+            outputFunction,
+            normalizedSql,
+            extraHeaderCode: inputSourceFile.getFullText().trim(),
+            variableNames,
+            queryName,
+            sourceFile: filename,
+        });
+    }
 
     return finalSourceFile.getFullText();
 }

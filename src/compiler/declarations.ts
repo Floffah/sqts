@@ -5,7 +5,7 @@ import { Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
 import { compilerError } from "./errors.ts";
 
 interface ExtractedDeclarations {
-    output: OutputDeclaration;
+    output: OutputDeclaration | null;
     propsVarName: string;
     propsVarStatement: VariableStatement | null;
 }
@@ -99,10 +99,11 @@ export function extractDeclarations(
     }
 
     if (exportedStatements.length === 0) {
-        compilerError(
-            filename,
-            "Missing exported output declaration. Add `export const user: User = {}` or `export const users: User[] = []`.",
-        );
+        return {
+            output: null,
+            propsVarName,
+            propsVarStatement,
+        };
     }
 
     if (exportedStatements.length > 1) {
