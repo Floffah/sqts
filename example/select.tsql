@@ -1,0 +1,10 @@
+import { User } from "./";
+
+const { id } = tsql.props as {
+    id: string
+}
+
+---
+
+SELECT id, name, email FROM users
+WHERE id = $id;
