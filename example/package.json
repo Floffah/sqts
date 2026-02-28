@@ -3,7 +3,7 @@
     "private": true,
     "main": "index.ts",
     "dependencies": {
-        "sqts": "file:../"
+        "@sqts/core": "file:../"
     },
     "scripts": {
         "codegen": "bun run ../dist/cli.cjs compile"

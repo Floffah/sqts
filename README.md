@@ -21,11 +21,11 @@ It allows you to create an Astro-style template with a Typescript header. You de
 SQTS requires `sqts.config.*` at compile time (unless overridden programmatically):
 
 ```ts
-import { defineConfig } from "sqts/config";
+import { defineConfig } from "@sqts/core/config";
 
 export default defineConfig({
     executor: {
-        module: "sqts/adapters/bun-sqlite",
+        module: "@sqts/core/adapters/bun-sqlite",
     },
 });
 ```
@@ -57,7 +57,7 @@ WHERE u.id = $id;
 You can use the built-in adapter module:
 
 ```ts
-import { execute } from "sqts/adapters/bun-sqlite";
+import { execute } from "@sqts/core/adapters/bun-sqlite";
 ```
 
 By default it resolves a database path from:
@@ -72,7 +72,7 @@ For this to work you should set up path aliases, for example point `@/*` to `./s
 
 ```ts
 // src/adapters/my-adapter.ts
-import { defineExecutor } from "sqts";
+import { defineExecutor } from "@sqts/core";
 
 export const execute = defineExecutor(async (query, params, meta) => {
     // do something with the query and params, return results
@@ -83,7 +83,7 @@ export const execute = defineExecutor(async (query, params, meta) => {
 Then update your sqts.config.ts:
 
 ```ts
-import { defineConfig } from "sqts/config";
+import { defineConfig } from "@sqts/core/config";
 
 export default defineConfig({
     executor: {

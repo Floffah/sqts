@@ -14,7 +14,7 @@ const compilerOptions = getCompilerOptionsFromTsConfig(
 async function compileFixture(input: string, filename = "getUser") {
     return compile(input.trim(), filename, {
         compilerOptions,
-        executorModule: "sqts/adapters/bun-sqlite",
+        executorModule: "@sqts/core/adapters/bun-sqlite",
     });
 }
 

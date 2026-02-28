@@ -68,7 +68,7 @@ export function clearDefaultDatabase() {
 export const execute = defineExecutor(async (query, params, meta) => {
     const database = resolveDefaultDatabase();
     const statement = database.query(query);
-    const rows = statement.all(...params);
+    const rows = statement.all(...(params as SQLQueryBindings[]));
 
     if (!Array.isArray(rows)) {
         throw new Error(
