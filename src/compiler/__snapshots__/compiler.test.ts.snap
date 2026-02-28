@@ -10,34 +10,33 @@ export default function execGetUsersQuery({ id }: QueryProps): User[] {
     const query = \`SELECT u.id AS "users[].id", u.email AS "users[].email" FROM users u
 WHERE u.id = ?;\`;
     const output = execSql(query, id);
-    const rows = output.rows as Record<string, unknown>[];
-
-    const setPath = (target: Record<string, any>, path: string[], value: unknown) => {
-        let current: Record<string, any> = target;
-        for (let i = 0; i < path.length - 1; i++) {
-            const key = path[i]!;
-            const existing = current[key];
-            if (typeof existing !== "object" || existing === null || Array.isArray(existing)) {
-                current[key] = {};
-            }
-            current = current[key] as Record<string, any>;
-        }
-        current[path[path.length - 1]!] = value;
-    };
-
+    const rows: Record<string, unknown>[] = output.rows as Record<string, unknown>[];
     const mappings = [
-        { aliasKey: "users[].id", targetPath: ["id"] },
-        { aliasKey: "users[].email", targetPath: ["email"] },
-    ] as const;
-
+            { aliasKey: "users[].id", targetPath: ["id"] },
+            { aliasKey: "users[].email", targetPath: ["email"] },
+        ] as const;
     const users: User[] = [];
     for (const row of rows) {
         const value = {} as User;
         for (const mapping of mappings) {
-            setPath(value as Record<string, any>, [...mapping.targetPath], row[mapping.aliasKey]);
+            let current: Record<string, any> = value as Record<string, any>;
+            const path = mapping.targetPath;
+            for (let i = 0; i < path.length - 1; i++) {
+                const key = path[i]!;
+                const existing = current[key];
+                if (typeof existing !== "object" || existing === null || Array.isArray(existing)) {
+                    current[key] = {};
+                }
+
+                current = current[key] as Record<string, any>;
+            }
+
+            current[path[path.length - 1]!] = row[mapping.aliasKey];
         }
+
         users.push(value);
     }
+
     return users;
 }
 "
@@ -53,34 +52,33 @@ export default function execGetUserQuery({ id }: QueryProps): User {
     const query = \`SELECT u.id AS "user.id", u.email AS "user.email" FROM users u
 WHERE u.id = ?;\`;
     const output = execSql(query, id);
-    const rows = output.rows as Record<string, unknown>[];
+    const rows: Record<string, unknown>[] = output.rows as Record<string, unknown>[];
+    const mappings = [
+            { aliasKey: "user.id", targetPath: ["id"] },
+            { aliasKey: "user.email", targetPath: ["email"] },
+        ] as const;
+    if (rows.length !== 1) {
+        throw new Error("Expected exactly one row for user, got " + rows.length);
+    }
 
-    const setPath = (target: Record<string, any>, path: string[], value: unknown) => {
-        let current: Record<string, any> = target;
+    const value = {} as User;
+    const row = rows[0]!;
+    for (const mapping of mappings) {
+        let current: Record<string, any> = value as Record<string, any>;
+        const path = mapping.targetPath;
         for (let i = 0; i < path.length - 1; i++) {
             const key = path[i]!;
             const existing = current[key];
             if (typeof existing !== "object" || existing === null || Array.isArray(existing)) {
                 current[key] = {};
             }
+
             current = current[key] as Record<string, any>;
         }
-        current[path[path.length - 1]!] = value;
-    };
 
-    const mappings = [
-        { aliasKey: "user.id", targetPath: ["id"] },
-        { aliasKey: "user.email", targetPath: ["email"] },
-    ] as const;
+        current[path[path.length - 1]!] = row[mapping.aliasKey];
+    }
 
-    if (rows.length !== 1) {
-        throw new Error("Expected exactly one row for user, got " + rows.length);
-    }
-    const value = {} as User;
-    const row = rows[0]!;
-    for (const mapping of mappings) {
-        setPath(value as Record<string, any>, [...mapping.targetPath], row[mapping.aliasKey]);
-    }
     return value;
 }
 "

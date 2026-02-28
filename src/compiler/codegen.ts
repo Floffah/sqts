@@ -1,5 +1,6 @@
 import type { MappingDescriptor, OutputDeclaration } from "./types.ts";
 import type { FunctionDeclaration } from "ts-morph";
+import { VariableDeclarationKind } from "ts-morph";
 
 function getElementType(outputTypeText: string) {
     return outputTypeText.endsWith("[]")
@@ -22,83 +23,124 @@ export function populateOutputFunctionBody({
     mappings: MappingDescriptor[];
     output: OutputDeclaration;
 }) {
-    outputFunction.setBodyText((writer) => {
-        writer.writeLine(`const query = \`${normalizedSql}\`;`);
-        if (extraHeaderCode) {
-            writer.blankLine();
-            writer.write(extraHeaderCode);
-            writer.blankLine();
-        }
+    const inlineMapStatementsFor = (targetVar: string) => [
+        "for (const mapping of mappings) {",
+        `    let current: Record<string, any> = ${targetVar} as Record<string, any>;`,
+        "    const path = mapping.targetPath;",
+        "    for (let i = 0; i < path.length - 1; i++) {",
+        "        const key = path[i]!;",
+        "        const existing = current[key];",
+        '        if (typeof existing !== "object" || existing === null || Array.isArray(existing)) {',
+        "            current[key] = {};",
+        "        }",
+        "        current = current[key] as Record<string, any>;",
+        "    }",
+        "    current[path[path.length - 1]!] = row[mapping.aliasKey];",
+        "}",
+    ];
 
-        if (variableNames.length > 0) {
-            writer.writeLine(
-                `const output = execSql(query, ${variableNames.join(", ")});`,
-            );
-        } else {
-            writer.writeLine("const output = execSql(query);");
-        }
-        writer.writeLine(
-            "const rows = output.rows as Record<string, unknown>[];",
-        );
-        writer.blankLine();
-        writer.writeLine(
-            "const setPath = (target: Record<string, any>, path: string[], value: unknown) => {",
-        );
-        writer.writeLine("    let current: Record<string, any> = target;");
-        writer.writeLine("    for (let i = 0; i < path.length - 1; i++) {");
-        writer.writeLine("        const key = path[i]!;");
-        writer.writeLine("        const existing = current[key];");
-        writer.writeLine(
-            '        if (typeof existing !== "object" || existing === null || Array.isArray(existing)) {',
-        );
-        writer.writeLine("            current[key] = {};");
-        writer.writeLine("        }");
-        writer.writeLine(
-            "        current = current[key] as Record<string, any>;",
-        );
-        writer.writeLine("    }");
-        writer.writeLine("    current[path[path.length - 1]!] = value;");
-        writer.writeLine("};");
-        writer.blankLine();
-        writer.writeLine("const mappings = [");
-        for (const mapping of mappings) {
-            writer.writeLine(
-                `    { aliasKey: ${JSON.stringify(mapping.aliasKey)}, targetPath: ${JSON.stringify(mapping.targetPath)} },`,
-            );
-        }
-        writer.writeLine("] as const;");
-        writer.blankLine();
-
-        if (output.mode === "many") {
-            const elementType = getElementType(output.typeText);
-            writer.writeLine(
-                `const ${output.rootName}: ${output.typeText} = [];`,
-            );
-            writer.writeLine("for (const row of rows) {");
-            writer.writeLine(`    const value = {} as ${elementType};`);
-            writer.writeLine("    for (const mapping of mappings) {");
-            writer.writeLine(
-                "        setPath(value as Record<string, any>, [...mapping.targetPath], row[mapping.aliasKey]);",
-            );
-            writer.writeLine("    }");
-            writer.writeLine(`    ${output.rootName}.push(value);`);
-            writer.writeLine("}");
-            writer.writeLine(`return ${output.rootName};`);
-            return;
-        }
-
-        writer.writeLine("if (rows.length !== 1) {");
-        writer.writeLine(
-            `    throw new Error("Expected exactly one row for ${output.rootName}, got " + rows.length);`,
-        );
-        writer.writeLine("}");
-        writer.writeLine(`const value = {} as ${output.typeText};`);
-        writer.writeLine("const row = rows[0]!;");
-        writer.writeLine("for (const mapping of mappings) {");
-        writer.writeLine(
-            "    setPath(value as Record<string, any>, [...mapping.targetPath], row[mapping.aliasKey]);",
-        );
-        writer.writeLine("}");
-        writer.writeLine("return value;");
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "query",
+                initializer: (writer) =>
+                    writer.write("`").write(normalizedSql).write("`"),
+            },
+        ],
     });
+
+    if (extraHeaderCode) {
+        outputFunction.addStatements(extraHeaderCode);
+    }
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "output",
+                initializer:
+                    variableNames.length > 0
+                        ? `execSql(query, ${variableNames.join(", ")})`
+                        : "execSql(query)",
+            },
+        ],
+    });
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "rows",
+                type: "Record<string, unknown>[]",
+                initializer: "output.rows as Record<string, unknown>[]",
+            },
+        ],
+    });
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "mappings",
+                initializer: (writer) => {
+                    writer.writeLine("[");
+                    for (const mapping of mappings) {
+                        writer.writeLine(
+                            `    { aliasKey: ${JSON.stringify(mapping.aliasKey)}, targetPath: ${JSON.stringify(mapping.targetPath)} },`,
+                        );
+                    }
+                    writer.write("] as const");
+                },
+            },
+        ],
+    });
+
+    if (output.mode === "many") {
+        const elementType = getElementType(output.typeText);
+
+        outputFunction.addVariableStatement({
+            declarationKind: VariableDeclarationKind.Const,
+            declarations: [
+                {
+                    name: output.rootName,
+                    type: output.typeText,
+                    initializer: "[]",
+                },
+            ],
+        });
+
+        outputFunction.addStatements([
+            "for (const row of rows) {",
+            `    const value = {} as ${elementType};`,
+            ...inlineMapStatementsFor("value").map((line) => `    ${line}`),
+            `    ${output.rootName}.push(value);`,
+            "}",
+            `return ${output.rootName};`,
+        ]);
+        return;
+    }
+
+    outputFunction.addStatements([
+        "if (rows.length !== 1) {",
+        `    throw new Error("Expected exactly one row for ${output.rootName}, got " + rows.length);`,
+        "}",
+    ]);
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [
+            {
+                name: "value",
+                initializer: `{} as ${output.typeText}`,
+            },
+        ],
+    });
+
+    outputFunction.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        declarations: [{ name: "row", initializer: "rows[0]!" }],
+    });
+
+    outputFunction.addStatements([...inlineMapStatementsFor("value"), "return value;"]);
 }
