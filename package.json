@@ -1,8 +1,11 @@
 {
-    "name": "sqts",
+    "name": "@sqts/core",
     "version": "0.0.0",
     "description": "Type-safe SQL queries for TypeScript",
-    "repository": "https://github.com/floffah/sqts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/floffah/sqts.git"
+    },
     "homepage": "https://floffah.github.io/sqts",
     "workspaces": [
         "example"
@@ -25,7 +28,7 @@
         "node": ">=20.0.0"
     },
     "bin": {
-        "sqts": "./dist/cli.js"
+        "sqts": "dist/cli.cjs"
     },
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
