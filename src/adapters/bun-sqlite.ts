@@ -1,4 +1,4 @@
-import { Database, SQLQueryBindings } from "bun:sqlite";
+import { Database, type SQLQueryBindings } from "bun:sqlite";
 
 import type { QueryMeta, QueryResultRow } from "@/adapters/types.ts";
 import { defineExecutor } from "@/lib/executor.ts";
