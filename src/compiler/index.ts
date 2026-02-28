@@ -61,7 +61,7 @@ function hoistImports(
                 ?.map((attr) => ({
                     name: attr.getName(),
                     text: attr.getText(),
-                    value: attr.getValue() as any,
+                    value: attr.getValue()?.getFullText(),
                 })),
             isTypeOnly: importDec.isTypeOnly(),
             defaultImport: importDec.getDefaultImport()?.getText(),

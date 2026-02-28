@@ -40,15 +40,20 @@
     },
     "scripts": {
         "build": "tsdown --minify",
-        "dev": "tsdown --watch"
+        "dev": "tsdown --watch",
+        "lint": "eslint"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
         "@types/bun": "latest",
         "esbuild": "^0.27.3",
+        "eslint": "^10.0.2",
+        "eslint-config-prettier": "^10.1.8",
         "nanoid": "^5.1.6",
         "prettier": "^3.8.1",
-        "tsdown": "^0.21.0-beta.2"
+        "tsdown": "^0.21.0-beta.2",
+        "typescript-eslint": "^8.56.1"
     },
     "peerDependencies": {
         "typescript": "^5.9.3"

@@ -130,7 +130,7 @@ export function populateOutputFunctionBody({
 
     outputFunction.addStatements([
         "if (rows.length !== 1) {",
-        `    throw new Error(\"Expected exactly one row for ${output.rootName}, got \" + rows.length);`,
+        `    throw new Error("Expected exactly one row for ${output.rootName}, got " + rows.length);`,
         "}",
     ]);
 

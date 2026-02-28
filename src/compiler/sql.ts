@@ -216,7 +216,7 @@ function parseAliasToken(aliasToken: string) {
         return trimmed.slice(1, -1);
     }
 
-    if (/^[A-Za-z_][A-Za-z0-9_\.\[\]]*$/.test(trimmed)) {
+    if (/^[A-Za-z_][A-Za-z0-9_.[\]]*$/.test(trimmed)) {
         return trimmed;
     }
 
