@@ -27,14 +27,14 @@ function resolveDefaultDatabase() {
     }
 
     const pathFromEnv =
-        process.env.TSQL_BUN_SQLITE_PATH ??
+        process.env.SQTS_BUN_SQLITE_PATH ??
         process.env.BUN_SQLITE_PATH ??
         process.env.SQLITE_DATABASE_PATH ??
         process.env.DATABASE_URL;
 
     if (!pathFromEnv) {
         throw new Error(
-            "[tsql bun-sqlite] No default sqlite path configured. Set TSQL_BUN_SQLITE_PATH (or BUN_SQLITE_PATH / SQLITE_DATABASE_PATH / DATABASE_URL), or use a custom executor module in tsql.config.*",
+            "[sqts bun-sqlite] No default sqlite path configured. Set SQTS_BUN_SQLITE_PATH (or BUN_SQLITE_PATH / SQLITE_DATABASE_PATH / DATABASE_URL), or use a custom executor module in sqts.config.*",
         );
     }
 
@@ -49,7 +49,7 @@ export function normalizeRows(
     return rows.map((row) => {
         if (typeof row !== "object" || row === null || Array.isArray(row)) {
             throw new Error(
-                `[tsql bun-sqlite] Expected object row for ${getMetaLabel(meta)}, got ${typeof row}`,
+                `[sqts bun-sqlite] Expected object row for ${getMetaLabel(meta)}, got ${typeof row}`,
             );
         }
 
@@ -72,7 +72,7 @@ export const execute = defineExecutor(async (query, params, meta) => {
 
     if (!Array.isArray(rows)) {
         throw new Error(
-            `[tsql bun-sqlite] Expected query().all() to return an array for ${getMetaLabel(meta)}`,
+            `[sqts bun-sqlite] Expected query().all() to return an array for ${getMetaLabel(meta)}`,
         );
     }
 

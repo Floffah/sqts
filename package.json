@@ -1,5 +1,5 @@
 {
-    "name": "tsql",
+    "name": "sqts",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
@@ -19,12 +19,6 @@
             "import": "./dist/config.mjs",
             "require": "./dist/config.js"
         },
-        "./executor-Byyu_Gsd": {
-            "default": "./dist/executor-Byyu_Gsd.js"
-        },
-        "./executor-CeMFjOX9": {
-            "default": "./dist/executor-CeMFjOX9.mjs"
-        },
         "./*": "./*"
     },
     "publishConfig": {
@@ -41,8 +35,6 @@
                 "import": "./dist/config.mjs",
                 "require": "./dist/config.js"
             },
-            "./executor-Byyu_Gsd": "./dist/executor-Byyu_Gsd.js",
-            "./executor-CeMFjOX9": "./dist/executor-CeMFjOX9.mjs",
             "./*": "./*"
         }
     },
@@ -59,7 +51,7 @@
         "tsdown": "^0.21.0-beta.2"
     },
     "peerDependencies": {
-        "typescript": "^5"
+        "typescript": "^5.9.3"
     },
     "dependencies": {
         "ts-morph": "^27.0.2",

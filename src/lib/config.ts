@@ -7,7 +7,7 @@ export async function getConfig(cwd = process.cwd()) {
         cwd,
         sources: [
             {
-                files: "tsql.config",
+                files: "sqts.config",
                 extensions: [
                     "ts",
                     "mts",

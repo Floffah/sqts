@@ -21,7 +21,7 @@ test("bun-sqlite execute returns normalized rows", async () => {
     const result = await execute(
         "SELECT id, email FROM users WHERE id = ?",
         [1],
-        { queryName: "getUser", sourceFile: "get-user.tsql" },
+        { queryName: "getUser", sourceFile: "get-user.sqts" },
     );
 
     expect(result.rows).toEqual([{ id: 1, email: "alice@example.com" }]);
@@ -42,7 +42,7 @@ test("bun-sqlite execute errors for non-object rows", async () => {
     await expect(
         execute("SELECT 1", [], {
             queryName: "bad",
-            sourceFile: "bad.tsql",
+            sourceFile: "bad.sqts",
         }),
     ).rejects.toThrow("Expected object row");
 });

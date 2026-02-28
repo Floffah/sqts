@@ -14,14 +14,14 @@ const compilerOptions = getCompilerOptionsFromTsConfig(
 async function compileFixture(input: string, filename = "getUser") {
     return compile(input.trim(), filename, {
         compilerOptions,
-        executorModule: "tsql/adapters/bun-sqlite",
+        executorModule: "sqts/adapters/bun-sqlite",
     });
 }
 
 const manyRowsTestFile = `
 import { User } from "./";
 
-const { id } = tsql.props as {
+const { id } = sqts.props as {
     id: string
 }
 
@@ -39,7 +39,7 @@ WHERE u.id = $id;
 const singleRowTestFile = `
 import { User } from "./";
 
-const { id } = tsql.props as {
+const { id } = sqts.props as {
     id: string
 }
 
@@ -55,7 +55,7 @@ WHERE u.id = $id;
 `;
 
 const singleMutationTestFile = `
-const { id } = tsql.props as {
+const { id } = sqts.props as {
     id: string
 }
 
@@ -75,10 +75,10 @@ test("Should compile single-row output with mapped aliases", async () => {
 });
 
 test("Should load executor module from config when override is absent", async () => {
-    const configDir = await mkdtemp(join(tmpdir(), "tsql-config-"));
+    const configDir = await mkdtemp(join(tmpdir(), "sqts-config-"));
 
     await writeFile(
-        join(configDir, "tsql.config.json"),
+        join(configDir, "sqts.config.json"),
         JSON.stringify({
             executor: {
                 module: "custom/executor-module",
@@ -92,12 +92,12 @@ test("Should load executor module from config when override is absent", async ()
     });
 
     expect(output).toContain(
-        'import { execute as __tsqlExecute } from "custom/executor-module";',
+        'import { execute as __sqtsExecute } from "custom/executor-module";',
     );
 });
 
 test("Should error when executor config is missing", async () => {
-    const emptyDir = await mkdtemp(join(tmpdir(), "tsql-empty-config-"));
+    const emptyDir = await mkdtemp(join(tmpdir(), "sqts-empty-config-"));
 
     expect(
         compile(singleRowTestFile.trim(), "missingConfig", {
@@ -112,7 +112,7 @@ test("Should error when exported output declaration is missing", async () => {
         compileFixture(
             `
 import { User } from "./";
-const { id } = tsql.props as { id: string }
+const { id } = sqts.props as { id: string }
 ---
 SELECT u.id AS "user.id" FROM users u WHERE u.id = $id;
 `,
@@ -125,7 +125,7 @@ test("Should error when multiple exported outputs are present", async () => {
         compileFixture(
             `
 import { User } from "./";
-const { id } = tsql.props as { id: string }
+const { id } = sqts.props as { id: string }
 export const user: User = {} as User
 export const users: User[] = []
 ---
@@ -140,7 +140,7 @@ test("Should error when select item is missing AS alias", async () => {
         compileFixture(
             `
 import { User } from "./";
-const { id } = tsql.props as { id: string }
+const { id } = sqts.props as { id: string }
 export const users: User[] = []
 ---
 SELECT u.id, u.email AS "users[].email"
@@ -156,7 +156,7 @@ test("Should error when alias root does not match exported output", async () => 
         compileFixture(
             `
 import { User } from "./";
-const { id } = tsql.props as { id: string }
+const { id } = sqts.props as { id: string }
 export const users: User[] = []
 ---
 SELECT u.id AS "user.id"
@@ -172,7 +172,7 @@ test("Should error when alias path is invalid", async () => {
         compileFixture(
             `
 import { User } from "./";
-const { id } = tsql.props as { id: string }
+const { id } = sqts.props as { id: string }
 export const users: User[] = []
 ---
 SELECT u.id AS "users[].items[].id"

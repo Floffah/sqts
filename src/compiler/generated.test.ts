@@ -15,7 +15,7 @@ const compilerOptions = getCompilerOptionsFromTsConfig(
 ) as unknown as CompilerOptions;
 
 const singleRowTestFile = `
-const { id } = tsql.props as {
+const { id } = sqts.props as {
     id: string
 }
 

@@ -39,7 +39,7 @@ async function resolveExecutorModule(
 
     compilerError(
         filename,
-        'Missing executor config. Add tsql.config.ts with `executor.module`, or pass `executorModule` to compile(). Example: defineConfig({ executor: { module: "tsql/adapters/bun-sqlite" } })',
+        'Missing executor config. Add sqts.config.ts with `executor.module`, or pass `executorModule` to compile(). Example: defineConfig({ executor: { module: "sqts/adapters/bun-sqlite" } })',
     );
 }
 
@@ -93,7 +93,7 @@ export async function compile(
 
     finalSourceFile.addImportDeclaration({
         moduleSpecifier: resolvedExecutorModule,
-        namedImports: [{ name: "execute", alias: "__tsqlExecute" }],
+        namedImports: [{ name: "execute", alias: "__sqtsExecute" }],
     });
 
     const { output, propsVarName, propsVarStatement } = extractDeclarations(

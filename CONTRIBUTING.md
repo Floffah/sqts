@@ -1,6 +1,6 @@
 (Based on https://github.com/eljojo/no-autopilot/blob/main/CONTRIBUTING.md)
 
-# Contributing to TSQL
+# Contributing to SQTS
 
 We welcome contributions. Here's how to make them count.
 

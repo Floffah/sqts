@@ -86,7 +86,7 @@ export function extractDeclarations(
         const declarationType = expression.getContextualType();
         if (
             declarationType &&
-            expression.getExpression().getText() === "tsql" &&
+            expression.getExpression().getText() === "sqts" &&
             expression.getName() === "props"
         ) {
             propsVarName = declaration.getNameNode().getText();
@@ -109,7 +109,7 @@ export function extractDeclarations(
     if (exportedStatements.length > 1) {
         compilerError(
             filename,
-            "Exactly one exported output declaration is required per tsql file",
+            "Exactly one exported output declaration is required per sqts file",
         );
     }
 

@@ -13,7 +13,7 @@ export default defineConfig({
     exports: {
         all: true,
         devExports: "development",
-        exclude: ["cli", "types*"],
+        exclude: ["cli", /^[a-zA-Z0-9]+-[a-zA-Z0-9_]{8}$/],
     },
     deps: {
         neverBundle: ["bun:sqlite"],

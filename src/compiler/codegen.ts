@@ -71,7 +71,7 @@ export function populateOutputFunctionBody({
         declarations: [
             {
                 name: "output",
-                initializer: `await __tsqlExecute(query, params, { queryName: ${JSON.stringify(queryName)}, sourceFile: ${JSON.stringify(sourceFile)} })`,
+                initializer: `await __sqtsExecute(query, params, { queryName: ${JSON.stringify(queryName)}, sourceFile: ${JSON.stringify(sourceFile)} })`,
             },
         ],
     });
@@ -198,8 +198,7 @@ export function populateMutationFunctionBody({
         ],
     });
 
-    outputFunction.addStatements([
-        `await __tsqlExecute(query, params, { queryName: ${JSON.stringify(queryName)}, sourceFile: ${JSON.stringify(sourceFile)} });`,
-        "return;",
-    ]);
+    outputFunction.addStatements(
+        `await __sqtsExecute(query, params, { queryName: ${JSON.stringify(queryName)}, sourceFile: ${JSON.stringify(sourceFile)} });`,
+    );
 }
