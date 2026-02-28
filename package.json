@@ -4,7 +4,7 @@
     "description": "Type-safe SQL queries for TypeScript",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/floffah/sqts.git"
+        "url": "git+https://github.com/Floffah/sqts.git"
     },
     "homepage": "https://floffah.github.io/sqts",
     "workspaces": [
