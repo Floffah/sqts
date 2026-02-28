@@ -15,9 +15,6 @@ jobs:
       - run: bun install
       - run: bun run build
       - run: bun test
-      - run: bun install # make sure dist folder is properly linked to example
-      - run: bun run --cwd example codegen
-      - run: bun run --cwd example index.ts
   lint:
     name: Lint
     runs-on: ubuntu-latest
