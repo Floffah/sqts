@@ -8,7 +8,8 @@
     },
     "homepage": "https://floffah.github.io/sqts",
     "workspaces": [
-        "example"
+        "example",
+        "docs"
     ],
     "keywords": [
         "sql",
@@ -72,7 +73,9 @@
     "scripts": {
         "build": "tsdown --minify",
         "dev": "tsdown --watch",
-        "lint": "eslint"
+        "lint": "eslint",
+        "docs": "bun --cwd docs dev",
+        "build:docs": "bun --cwd docs build"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",

@@ -1,0 +1,80 @@
+---
+title: Setup
+---
+
+import {Steps, TabItem, Tabs} from "@astrojs/starlight/components";
+
+Installation and setup is straightforward if you're using the compiler.
+
+Want to use this with your favourite bundler? See [Bundlers and Runtimes](./bundlers) for current guidance. That flow avoids writing compiled files directly into your source directory.
+
+<Steps>
+
+1. Install the package:
+
+    <Tabs>
+        <TabItem label="bun">
+            ```bash
+            bun add @sqts/core
+            ```
+        </TabItem>
+        <TabItem label="npm">
+            ```bash
+            npm install @sqts/core
+            ```
+        </TabItem>
+        <TabItem label="yarn">
+            ```bash
+            yarn add @sqts/core
+            ```
+        </TabItem>
+        <TabItem label="pnpm">
+            ```bash
+            pnpm add @sqts/core
+            ```
+        </TabItem>
+    </Tabs>
+
+2. Create a `sqts.config.ts` file in your project root:
+
+    ```ts
+    import { defineConfig } from "@sqts/core/config";
+
+    export default defineConfig({
+        executor: {
+            module: "@sqts/core/adapters/bun-sqlite", // or path/to/my/adapter.ts
+        },
+        output: {
+            mode: "compile",
+            inline: true,
+            ext: "ts" // verbatim output is .ts, use "js" for js transpilation
+        }
+    });
+    ```
+
+3. Start writing `.sqts` files and run `sqts compile`.
+</Steps>
+
+If you need another database adapter, you can use the list of built-in ones (see sidebar), or write your own. See [Custom Adapters](../adapters/custom) for more details.
+
+## Non-inline mode
+
+By default, the compiler emits generated files next to each `.sqts` file, using the configured extension. SQTS also supports compiling into a dedicated directory.
+
+SQTS is still in early beta. Non-inline output may require import-path adjustments depending on your project layout.
+
+```ts
+import { defineConfig } from "@sqts/core/config";
+
+export default defineConfig({
+    executor: {
+        module: "@sqts/core/adapters/bun-sqlite",
+    },
+    output: {
+        mode: "compile",
+        inline: false,
+        dir: "./generated-queries",
+        ext: "ts"
+    }
+});
+```

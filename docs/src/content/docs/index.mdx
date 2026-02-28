@@ -1,0 +1,76 @@
+---
+title: SQTS
+description: Type-safe SQL with a configurable execution model.
+template: splash
+hero:
+  tagline: Keep writing SQL. Add strong types around it.
+  actions:
+    - text: Get Started
+      link: /sqts/getting-started/setup
+      icon: right-arrow
+    - text: Introduction
+      link: /sqts/intro
+      icon: open-book
+    - text: See Source
+      link: https://github.com/Floffah/sqts
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+SQTS is a practical middle ground between raw SQL and ORM-heavy abstraction.
+
+You keep direct ownership of your queries, define typed inputs and outputs, and route execution through a configurable adapter module that fits your runtime.
+
+## Start Here
+
+<CardGrid stagger>
+  <Card
+    title="Setup"
+    icon="rocket"
+    href="/sqts/getting-started/setup"
+  >
+    Install SQTS, configure your executor module, and compile your first queries.
+  </Card>
+
+  <Card
+    title="Bun SQLite Adapter"
+    icon="database"
+    href="/sqts/adapters/bun-sqlite"
+  >
+    Use the built-in adapter for Bun + SQLite with minimal setup.
+  </Card>
+
+  <Card
+    title="Custom Adapters"
+    icon="setting"
+    href="/sqts/adapters/custom"
+  >
+    Integrate SQTS with your own client layer and runtime architecture.
+  </Card>
+
+  <Card
+    title="Bundlers & Runtimes"
+    icon="box"
+    href="/sqts/getting-started/bundlers"
+  >
+    Understand current bundler workflow expectations and future direction.
+  </Card>
+
+  <Card
+    title="Writing Query Files"
+    icon="document"
+    href="/sqts/guides/query-files"
+  >
+    Learn the expected structure for read and write query files.
+  </Card>
+
+  <Card
+    title="Configuration Reference"
+    icon="setting"
+    href="/sqts/reference/configuration"
+  >
+    Review supported config fields and output options in one place.
+  </Card>
+</CardGrid>

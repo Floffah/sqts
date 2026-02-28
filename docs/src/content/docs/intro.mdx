@@ -1,0 +1,37 @@
+---
+title: Introduction
+description: What SQTS is and why you might use it.
+pagination: false
+giscus: false
+---
+
+import {Aside, LinkCard} from "@astrojs/starlight/components";
+
+<Aside>
+**SQTS is a work in progress.** This project is an early proof of concept for type-safe SQL. The API and features are likely to change as I explore the best way to provide type safety with a good developer experience. If you have feedback or want to contribute, please check out the [GitHub repo](https://github.com/Floffah/sqts).
+</Aside>
+
+ORMs are almost always the best choice for developers wanting type-safety with their databases, but sometimes you can't use them. Maybe you can't ship the migrations due to some constraint, maybe you need a self-contained bundle or binary, maybe you just want ownership of the queries.
+
+SQTS is a way to keep writing real SQL while getting the confidence of type-safe application code.
+
+Most teams want direct control over their queries, but still want help catching mistakes before runtime. SQTS sits in that middle ground. You define what a query expects, what it returns, and SQTS handles the compile-time wiring so your query usage stays reliable as your codebase grows.
+
+With SQTS, you can:
+
+- Keep SQL as SQL, instead of rewriting your data layer around an ORM query builder (ish).
+- Define typed inputs for each query so invalid parameters are caught earlier.
+- Define typed outputs so downstream code can trust query results.
+- Map query results into clean, predictable object shapes.
+- Use a configurable adapter so SQTS can fit your runtime setup and database connection.
+- Scale from simple read queries to write operations in the same model.
+
+SQTS is especially useful when you care about portability, explicit control, and long-term maintainability of your queries.
+
+If you already like writing SQL by hand, SQTS helps you keep that workflow while adding safety and consistency around it.
+
+<LinkCard
+    href="/sqts/getting-started/setup"
+    title="Get Started"
+    description="Learn how to set up SQTS in your project"
+/>
