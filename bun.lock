@@ -51,6 +51,7 @@
         "esbuild": "^0.27.3",
         "nanoid": "^5.1.6",
         "tsdown": "^0.21.0-beta.2",
+        "typescript": "^5.9.3",
       },
       "peerDependencies": {
         "typescript": "^5.9.3",
@@ -62,6 +63,7 @@
       "devDependencies": {
         "@types/bun": "latest",
         "tsdown": "^0.21.0-beta.2",
+        "typescript": "^5.9.3",
       },
     },
   },

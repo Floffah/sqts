@@ -14,5 +14,6 @@ jobs:
 
       - run: bun install
       - run: bun run build
+      - run: bun install # ensure binaries are linked
       - run: bun run check
       - run: git diff --exit-code
