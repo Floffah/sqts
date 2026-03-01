@@ -3,9 +3,9 @@ title: Executor Contract
 description: The runtime execution shape SQTS expects.
 ---
 
-SQTS keeps runtime integration intentionally small.
+SQTS compiles every operation into one or more calls to your configured executor module.
 
-Your configured executor module must export a named async function called `execute`.
+Your executor module must export a named async function called `execute`.
 
 ## Function shape
 
@@ -13,12 +13,14 @@ Your configured executor module must export a named async function called `execu
 - Inputs:
   - `query: string`
   - `params: unknown[]`
-  - `meta?: { queryName: string; sourceFile: string }`
+  - `meta?: { queryName: string; sourceFile: string; statementIndex: number }`
 - Output:
   - `Promise<{ rows: Record<string, unknown>[] }>`
 
 ## Behavior expectations
 
-- `params` are positional and already ordered by query placeholder appearance.
-- `rows` must be an array of plain row objects keyed by selected SQL aliases.
-- Throwing from `execute` should indicate query execution failure.
+- `query` uses positional placeholders (`?`) after SQTS compilation.
+- `params` are ordered by placeholder appearance in that statement, including duplicates.
+- `rows` is used for row-producing statements (SELECT); write-only statements can return `{ rows: [] }`.
+- Block operations are executed sequentially; the last row-producing statement determines the returned rows.
+- Throwing from `execute` signals execution failure and is surfaced to the caller.

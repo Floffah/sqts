@@ -1,5 +1,6 @@
 export enum CompilerErrorCode {
     FailedToParseOperationSql = "ERR_FAILED_TO_PARSE_OPERATION_SQL",
+    FailedToCompileStatementSql = "ERR_FAILED_TO_COMPILE_STATEMENT_SQL",
     MissingSelectFromClause = "ERR_MISSING_SELECT_FROM_CLAUSE",
     MissingModelTable = "ERR_MISSING_MODEL_TABLE",
     ConflictingPlaceholderType = "ERR_CONFLICTING_PLACEHOLDER_TYPE",
@@ -8,6 +9,11 @@ export enum CompilerErrorCode {
     UnsupportedIdentifierPath = "ERR_UNSUPPORTED_IDENTIFIER_PATH",
     UnresolvedTable = "ERR_UNRESOLVED_TABLE",
     UnresolvedColumn = "ERR_UNRESOLVED_COLUMN",
+    InvalidProjectionExpression = "ERR_INVALID_PROJECTION_EXPRESSION",
+    MissingProjectionAlias = "ERR_MISSING_PROJECTION_ALIAS",
+    DuplicateProjectionOutputKey = "ERR_DUPLICATE_PROJECTION_OUTPUT_KEY",
+    UnsupportedProjectionWildcard = "ERR_UNSUPPORTED_PROJECTION_WILDCARD",
+    InvalidSelectProjectionReference = "ERR_INVALID_SELECT_PROJECTION_REFERENCE",
 }
 
 export class CompilerError extends Error {

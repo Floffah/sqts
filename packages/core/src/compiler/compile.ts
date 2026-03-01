@@ -15,26 +15,29 @@ export async function compile(
     const source = await readFile(filePath, "utf-8");
     const document = parseDocument(source);
 
-    const modelImports = new Set<string>();
     const functionDeclarations: string[] = [];
+    const modelImports = new Set<string>();
 
     for (const operation of document.operations) {
         const analysis = analyzeOperation(operation, ctx, path);
-        const compiled = compileOperationSignature(operation, analysis);
-        if (compiled.modelImport) {
-            modelImports.add(compiled.modelImport);
+        const compiled = compileOperationSignature(operation, analysis, path);
+        if (analysis.output.modelImport) {
+            modelImports.add(analysis.output.modelImport);
         }
         functionDeclarations.push(compiled.functionBody);
     }
 
-    const importBlock =
-        ctx.config.compiler?.modelTypes && modelImports.size > 0
-            ? `import type { ${Array.from(modelImports).sort().join(", ")} } from "./models";\n\n`
-            : "";
-
     if (functionDeclarations.length === 0) {
-        return importBlock.trim();
+        return "";
     }
 
-    return `${importBlock}${functionDeclarations.join("\n\n")}\n`;
+    const importBlock = `import { execute as __sqtsExecute } from ${JSON.stringify(
+        ctx.config.executor.module,
+    )};\n`;
+    const modelImportBlock =
+        modelImports.size === 0
+            ? "\n"
+            : `import type { ${Array.from(modelImports).sort().join(", ")} } from "./types";\n\n`;
+
+    return `${importBlock}${modelImportBlock}${functionDeclarations.join("\n\n")}\n`;
 }

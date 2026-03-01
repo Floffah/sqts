@@ -10,7 +10,7 @@ export async function compileModelTypes(
     outdir: string,
     ctx: CompileContext,
 ) {
-    const outputPath = resolve(outdir, "models.ts");
+    const outputPath = resolve(outdir, "types.ts");
     const outputFile = tsProj.createSourceFile(outputPath, "", {
         overwrite: true,
     });

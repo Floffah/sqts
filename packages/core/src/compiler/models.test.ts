@@ -172,11 +172,11 @@ async function compileAndReadModels(sqlPrograms: string[]): Promise<{
 
     await compileModelTypes(project, outdir, createCompileContext(schema));
 
-    const outputPath = resolve(outdir, "models.ts");
+    const outputPath = resolve(outdir, "types.ts");
     const outputFile = project.getSourceFile(outputPath);
     if (!outputFile) {
         throw new Error(
-            `Expected generated models file at "${outputPath}", but it was not found in ts-morph project.`,
+            `Expected generated types file at "${outputPath}", but it was not found in ts-morph project.`,
         );
     }
 

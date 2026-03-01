@@ -2,10 +2,6 @@ import { defineConfig } from "@sqts/core/config";
 
 export default defineConfig({
     executor: {
-        module: "@sqts/core/adapters/bun-sqlite",
+        module: "@/",
     },
-    // compiler: {
-    //     schemaDir: "migrations",
-    //     outDir: ".sqts",
-    // },
 });
