@@ -1,4 +1,4 @@
-import { normalize, sep } from "node:path";
+import { normalize, sep } from "path";
 
 export function commonLeadingDir(paths: string[]): string {
     if (paths.length === 0) return "";

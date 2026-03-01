@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 
-import { compileDirectory } from "@/compiler/directory.ts";
+import { compileProject } from "@/compiler";
 
 import packageJson from "../package.json";
 
@@ -17,14 +17,7 @@ program
     .alias("c")
     .description("Compile SQL files to TypeScript")
     .action(async () => {
-        const compileResult = await compileDirectory();
-
-        console.log("[SQTS] Compilation complete. Generated files:");
-        for (const [inputFile, output] of Object.entries(
-            compileResult.writtenFiles,
-        )) {
-            console.log(`- ${inputFile} -> ${output}`);
-        }
+        await compileProject();
     });
 
 program.parseAsync();
