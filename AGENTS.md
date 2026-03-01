@@ -67,7 +67,7 @@ Package naming convention is `@sqts/*`, you can always find the package on disk 
   - index.ts files should be used for barrel exports ONLY, no logic should be in them.
   - Only exception to this rule is when there are multiple entrypoints. For example in `@sqts/core`:
     - index.ts exports the compiler/parser API, but not config or CLI logic
-    - config.ts exports types and logic used in `sqts.config.ts` filse to ensure loading of configs is fast
+    - config.ts exports types and logic used in `sqts.config.ts` files to ensure loading of configs is fast
     - cli.ts exports nothing
 - Everything should be strongly typed
 - If you find yourself writing unions, consider if they should be typescript enums instead
