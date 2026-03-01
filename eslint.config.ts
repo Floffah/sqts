@@ -13,6 +13,6 @@ export default defineConfig(
     prettier,
     includeIgnoreFile(gitignorePath, "Imported .gitignore patterns"),
     {
-        ignores: ["**/*.test.*", "**/*.sqts.*"],
+        ignores: ["**/*.test.*", "**/.sqts/**"],
     },
 );
