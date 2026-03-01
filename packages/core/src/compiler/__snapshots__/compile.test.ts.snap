@@ -1,0 +1,23 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`compile matches snapshot for comprehensive mixed operations output 1`] = `
+"export async function GetUser(params: { id: number; }): Promise<Array<{
+    id: number;
+    email: string;
+}>> {
+    throw new Error("Not implemented: GetUser");
+}
+
+export async function ListPosts(params: { id: number; }): Promise<Array<{
+    id: number;
+    user_id: number;
+    title: string;
+}>> {
+    throw new Error("Not implemented: ListPosts");
+}
+
+export async function UpdateUser(params: { email: unknown; id: unknown; }): Promise<void> {
+    throw new Error("Not implemented: UpdateUser");
+}
+"
+`;

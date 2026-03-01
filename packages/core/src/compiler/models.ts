@@ -56,7 +56,7 @@ export async function compileModelTypes(
 
                 return {
                     name: column.name,
-                    type: resolveColumnType(column.affinity, column.nullable),
+                    type: schemaColumnToType(column.affinity, column.nullable),
                 };
             }),
         });
@@ -107,18 +107,48 @@ function singularize(value: string): string {
     return value;
 }
 
-function resolveColumnType(
+export function schemaTableToTypeLiteral(table: {
+    key: string;
+    columnOrder: string[];
+    columns: Record<
+        string,
+        {
+            name: string;
+            affinity: SqliteAffinity;
+            nullable: boolean;
+        }
+    >;
+}): string {
+    const lines = table.columnOrder.map((columnName) => {
+        const column = table.columns[columnName];
+        if (!column) {
+            throw new Error(
+                `Schema invariant violation: column "${columnName}" was not found in table "${table.key}".`,
+            );
+        }
+
+        return `    ${column.name}: ${schemaColumnToType(column.affinity, column.nullable)};`;
+    });
+
+    if (lines.length === 0) {
+        return "{}";
+    }
+
+    return `{\n${lines.join("\n")}\n}`;
+}
+
+export function schemaColumnToType(
     affinity: SqliteAffinity,
     nullable: boolean,
 ): string {
-    const baseType = affinityToType(affinity);
+    const baseType = sqliteAffinityToType(affinity);
     if (!nullable) {
         return baseType;
     }
     return `${baseType} | null`;
 }
 
-function affinityToType(affinity: SqliteAffinity): string {
+function sqliteAffinityToType(affinity: SqliteAffinity): string {
     switch (affinity) {
         case SqliteAffinity.Integer:
         case SqliteAffinity.Real:
