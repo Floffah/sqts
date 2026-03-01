@@ -7,8 +7,10 @@
 - [x] SQL client integration (config-selected executor modules)
 - [ ] More built-in adapter helpers (pg, mysql2, etc)
 - [ ] Bundler plugins (esbuild, vite, bun, etc)
-- [ ] CLI tool for generating code without a bundler
-- [ ] Make the format nicer
+- [x] CLI tool for generating code without a bundler
+- [x] Make the format nicer
+- [ ] Supports more complex use cases
+- [ ] Overhaul the codebase structure
 
 ORMs (drizzle, prisma, etc) are often the best choice for developers wanting type-safety with their databases, but sometimes you can't use them. Maybe you can't ship the migrations due to some constraint, maybe you need a self-contained bundle or binary, maybe you just want ownership of the queries.
 

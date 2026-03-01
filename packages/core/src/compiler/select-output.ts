@@ -1,26 +1,26 @@
-import { parseSqlite, type SelectStatement } from "@sqts/sql";
+import type { SelectStatement } from "@sqts/sql";
 
-import type { CompileContext } from "@/compiler/context.ts";
-import {
-    CompilerError,
-    CompilerErrorCode,
-} from "@/compiler/errors.ts";
-import {
-    schemaTableToTypeLiteral,
-    tableNameToTypeName,
-} from "@/compiler/models.ts";
-import { toTableKeyFromRef } from "@/compiler/identifier-resolution.ts";
+import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
+import type { CompileContext } from "@/compiler/getCompileContext.ts";
+import { parseFirstSelectFromOperation } from "@/compiler/lib/parseFirstSelectFromOperation.ts";
+import { schemaTableToTypeLiteral } from "@/compiler/lib/schemaTableToTypeLiteral.ts";
+import { tableNameToTypeName } from "@/compiler/lib/tableNameToTypeName.ts";
+import { toTableKeyFromRef } from "@/compiler/lib/toTableKeyFromRef.ts";
 import type { SqtsOperation } from "@/parser";
+
+export interface SelectOutputInfo {
+    returnType: string;
+    modelImport?: string;
+}
 
 export function resolveSelectOutputInfo(
     operation: SqtsOperation,
     ctx: CompileContext,
     sourcePath: string,
-): {
-    returnType: string;
-    modelImport?: string;
-} | null {
-    const firstSelect = parseFirstSelectFromOperation(operation, sourcePath);
+    firstSelectArg?: SelectStatement | null,
+): SelectOutputInfo | null {
+    const firstSelect =
+        firstSelectArg ?? parseFirstSelectFromOperation(operation, sourcePath);
     if (!firstSelect) {
         return null;
     }
@@ -60,37 +60,4 @@ export function resolveSelectOutputInfo(
     return {
         returnType: `Array<${schemaTableToTypeLiteral(table)}>`,
     };
-}
-
-export function parseFirstSelectFromOperation(
-    operation: SqtsOperation,
-    sourcePath: string,
-): SelectStatement | null {
-    const firstStatement = operation.statements[0];
-    if (!firstStatement) {
-        return null;
-    }
-
-    let parsedProgram;
-    try {
-        parsedProgram = parseSqlite(`${firstStatement.sql};`);
-    } catch (error) {
-        const message = `Failed to parse first SQL statement for operation "${operation.name}" in "${sourcePath}": ${String(
-            error instanceof Error ? error.message : error,
-        )}`;
-        throw new CompilerError({
-            code: CompilerErrorCode.FailedToParseOperationSql,
-            message,
-            sourcePath,
-            operationName: operation.name,
-            cause: error,
-        });
-    }
-
-    const firstParsedStatement = parsedProgram.statements[0];
-    if (!firstParsedStatement || firstParsedStatement.kind !== "select") {
-        return null;
-    }
-
-    return firstParsedStatement;
 }

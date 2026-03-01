@@ -1,5 +1,5 @@
 import type { SqlProgram, SqlStatement } from "@/parser/ast.ts";
-import { parseCreateTableStatement } from "@/parser/create-table.ts";
+import { parseCreateTableStatement } from "@/parser/parseCreateTableStatement.ts";
 import {
     createSourceLocator,
     ParseError,
@@ -12,7 +12,7 @@ import {
     isWithStatement,
     splitSqlStatements,
 } from "@/parser/script.ts";
-import { parseSelectStatement } from "@/parser/select.ts";
+import { parseSelectStatement } from "@/parser/parseSelectStatement.ts";
 
 export interface ParseOptions {
     dialect?: "sqlite";

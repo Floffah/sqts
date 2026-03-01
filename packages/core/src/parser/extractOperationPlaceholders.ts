@@ -1,4 +1,4 @@
-import type { SqtsStatement } from "./types.ts";
+import type { SqtsStatement } from "@/parser/types.ts";
 
 export function extractOperationPlaceholders(statements: SqtsStatement[]): string[] {
     const placeholders: string[] = [];

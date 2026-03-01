@@ -1,13 +1,13 @@
-import type { SqliteAffinity } from "@/parser/ast.ts";
+import type {
+    ForeignKeyDeferrableMode,
+    ForeignKeyInitiallyMode,
+    ReferentialAction,
+    SqliteAffinity,
+} from "@/parser/ast.ts";
 
 export type SqliteTableKey = string;
 
-export type SqliteForeignKeyAction =
-    | "set_null"
-    | "set_default"
-    | "cascade"
-    | "restrict"
-    | "no_action";
+export type SqliteForeignKeyAction = ReferentialAction;
 
 export type BuildSchemaOptions = Record<string, never>;
 
@@ -28,8 +28,8 @@ export interface SqliteForeignKey {
     onDelete?: SqliteForeignKeyAction;
     onUpdate?: SqliteForeignKeyAction;
     match?: string;
-    deferrable?: "deferrable" | "not_deferrable";
-    initially?: "deferred" | "immediate";
+    deferrable?: ForeignKeyDeferrableMode;
+    initially?: ForeignKeyInitiallyMode;
     name?: string;
 }
 

@@ -44,12 +44,23 @@ export interface IndexedColumnNode {
     span: SourceSpan;
 }
 
-export type ReferentialAction =
-    | "set_null"
-    | "set_default"
-    | "cascade"
-    | "restrict"
-    | "no_action";
+export enum ReferentialAction {
+    SetNull = "set_null",
+    SetDefault = "set_default",
+    Cascade = "cascade",
+    Restrict = "restrict",
+    NoAction = "no_action",
+}
+
+export enum ForeignKeyDeferrableMode {
+    Deferrable = "deferrable",
+    NotDeferrable = "not_deferrable",
+}
+
+export enum ForeignKeyInitiallyMode {
+    Deferred = "deferred",
+    Immediate = "immediate",
+}
 
 export interface ForeignKeyReferenceNode {
     table: IdentifierNode;
@@ -57,8 +68,8 @@ export interface ForeignKeyReferenceNode {
     onDelete?: ReferentialAction;
     onUpdate?: ReferentialAction;
     match?: string;
-    deferrable?: "deferrable" | "not_deferrable";
-    initially?: "deferred" | "immediate";
+    deferrable?: ForeignKeyDeferrableMode;
+    initially?: ForeignKeyInitiallyMode;
     span: SourceSpan;
 }
 

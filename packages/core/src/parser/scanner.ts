@@ -1,7 +1,7 @@
-import { SqtsParseError, SqtsParseErrorCode } from "./errors.ts";
-import { spanFromOffsets } from "./positions.ts";
-import type { ParserState } from "./state.ts";
-import type { SqtsStatement } from "./types.ts";
+import { SqtsParseError, SqtsParseErrorCode } from "@/parser/errors.ts";
+import { spanFromOffsets } from "@/parser/spanFromOffsets.ts";
+import type { ParserState } from "@/parser/state.ts";
+import type { SqtsStatement } from "@/parser/types.ts";
 
 export interface ScanSingleResult {
     statement: SqtsStatement;

@@ -1,0 +1,9 @@
+{
+    "mode": "pre",
+    "tag": "beta",
+    "initialVersions": {
+        "@sqts/core": "0.0.0",
+        "@sqts/sql": "0.0.0"
+    },
+    "changesets": []
+}

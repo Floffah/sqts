@@ -3,6 +3,7 @@ import { describe, expect, it } from "bun:test";
 import {
     ParseError,
     ParseErrorCode,
+    ReferentialAction,
     parseSqlite,
     SqliteAffinity,
 } from "@/index.ts";
@@ -68,7 +69,9 @@ CREATE TABLE IF NOT EXISTS main.users (
             expect(referencesConstraint.references.table.normalized).toBe(
                 "profiles",
             );
-            expect(referencesConstraint.references.onDelete).toBe("set_null");
+            expect(referencesConstraint.references.onDelete).toBe(
+                ReferentialAction.SetNull,
+            );
         }
 
         expect(

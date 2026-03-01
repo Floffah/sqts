@@ -1,8 +1,9 @@
 import { resolve } from "path";
-import { SqliteAffinity } from "@sqts/sql";
 import type { Project } from "ts-morph";
 
-import type { CompileContext } from "@/compiler/context.ts";
+import type { CompileContext } from "@/compiler/getCompileContext.ts";
+import { schemaColumnToType } from "@/compiler/lib/schemaColumnToType.ts";
+import { tableNameToTypeName } from "@/compiler/lib/tableNameToTypeName.ts";
 
 export async function compileModelTypes(
     tsProj: Project,
@@ -66,99 +67,4 @@ export async function compileModelTypes(
     outputFile.organizeImports();
     outputFile.fixUnusedIdentifiers();
     outputFile.formatText();
-}
-
-export function tableNameToTypeName(tableName: string): string {
-    return singularize(toPascalCase(tableName));
-}
-
-function toPascalCase(value: string): string {
-    const tokens = value
-        .split(/[^A-Za-z0-9]+/)
-        .map((token) => token.trim())
-        .filter((token) => token.length > 0);
-
-    if (tokens.length === 0) {
-        return "Model";
-    }
-
-    return tokens
-        .map((token) => token[0]!.toUpperCase() + token.slice(1))
-        .join("");
-}
-
-function singularize(value: string): string {
-    if (value.length <= 1) {
-        return value;
-    }
-
-    if (/ies$/i.test(value) && value.length > 3) {
-        return value.slice(0, -3) + "y";
-    }
-
-    if (/ss$/i.test(value)) {
-        return value;
-    }
-
-    if (/s$/i.test(value)) {
-        return value.slice(0, -1);
-    }
-
-    return value;
-}
-
-export function schemaTableToTypeLiteral(table: {
-    key: string;
-    columnOrder: string[];
-    columns: Record<
-        string,
-        {
-            name: string;
-            affinity: SqliteAffinity;
-            nullable: boolean;
-        }
-    >;
-}): string {
-    const lines = table.columnOrder.map((columnName) => {
-        const column = table.columns[columnName];
-        if (!column) {
-            throw new Error(
-                `Schema invariant violation: column "${columnName}" was not found in table "${table.key}".`,
-            );
-        }
-
-        return `    ${column.name}: ${schemaColumnToType(column.affinity, column.nullable)};`;
-    });
-
-    if (lines.length === 0) {
-        return "{}";
-    }
-
-    return `{\n${lines.join("\n")}\n}`;
-}
-
-export function schemaColumnToType(
-    affinity: SqliteAffinity,
-    nullable: boolean,
-): string {
-    const baseType = sqliteAffinityToType(affinity);
-    if (!nullable) {
-        return baseType;
-    }
-    return `${baseType} | null`;
-}
-
-function sqliteAffinityToType(affinity: SqliteAffinity): string {
-    switch (affinity) {
-        case SqliteAffinity.Integer:
-        case SqliteAffinity.Real:
-        case SqliteAffinity.Numeric:
-            return "number";
-        case SqliteAffinity.Text:
-            return "string";
-        case SqliteAffinity.Blob:
-            return "Uint8Array | string | unknown";
-        case SqliteAffinity.Unknown:
-            return "unknown";
-    }
 }

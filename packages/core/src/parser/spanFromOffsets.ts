@@ -1,5 +1,5 @@
-import type { ParserState } from "./state.ts";
-import type { SqtsSourcePosition, SqtsSourceSpan } from "./types.ts";
+import type { ParserState } from "@/parser/state.ts";
+import type { SqtsSourcePosition, SqtsSourceSpan } from "@/parser/types.ts";
 
 export function spanFromOffsets(
     state: ParserState,

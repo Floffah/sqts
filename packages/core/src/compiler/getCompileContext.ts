@@ -2,7 +2,7 @@ import { readdir, readFile } from "fs/promises";
 import { resolve } from "path";
 import { buildSqliteSchema, parseSqlite, type SqlProgram } from "@sqts/sql";
 
-import { getConfig } from "@/lib/config.ts";
+import { getConfig } from "@/lib/getConfig.ts";
 
 export async function getCompileContext(cwd = process.cwd()) {
     const config = await getConfig(cwd);

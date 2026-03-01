@@ -4,7 +4,7 @@ on:
   # Trigger the workflow every time you push to the `main` branch
   # Using a different branch name? Replace `main` with your branch’s name
   push:
-    branches: [ beta ] # change to main once 1.0.0 is released
+    branches: [ beta ] # TODO: change to main once first version is released
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
 

@@ -1,2 +1,2 @@
-export * from "./lexer";
-export * from "./parser";
+export * from "@/parser/lexer";
+export * from "@/parser/parser";

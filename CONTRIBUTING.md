@@ -4,6 +4,10 @@
 
 We welcome contributions. Here's how to make them count.
 
+## Changesets
+
+This repository uses [Changesets](https://github.com/changesets/changesets) to manage releases. When you make a change that should be included in a release, create a changeset by running `bun changeset` in the root of the repository. This will guide you through creating a changeset file that describes your change and its impact on the public API.
+
 ## How to contribute
 
 - **Small PRs, incremental improvements.** A series of focused, reviewable PRs is better than one large change.
@@ -36,3 +40,7 @@ We'd rather help you improve a PR than close it. But we can't review work that w
 
 - We use prettier for formatting and require that all code be formatted before submission.
 - We use eslint. All code must pass linting before submission.
+
+Try and make your code similar to existing patterns, and make sure it's clean. If you need comprehensive instructions, the [AGENTS.md](AGENTS.md) file has detailed guardrails (for AI models but applicable to humans too) on how to ensure your contributions meet the standards of this repository.
+
+These rules are looser for humans 😄

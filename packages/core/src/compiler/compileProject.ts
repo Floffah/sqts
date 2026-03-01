@@ -3,8 +3,8 @@ import { resolve } from "path";
 import { glob } from "glob";
 import { getCompilerOptionsFromTsConfig, Project } from "ts-morph";
 
-import { compile } from "@/compiler/compile-file.ts";
-import { getCompileContext } from "@/compiler/context.ts";
+import { compile } from "@/compiler/compile.ts";
+import { getCompileContext } from "@/compiler/getCompileContext.ts";
 import { compileModelTypes } from "@/compiler/models.ts";
 
 export async function compileProject(cwd = process.cwd()) {

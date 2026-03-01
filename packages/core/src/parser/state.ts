@@ -1,5 +1,5 @@
-import { type SourceLocator } from "./errors.ts";
-import { SqtsTokenKind, type SqtsToken } from "./lexer.ts";
+import { type SourceLocator } from "@/parser/errors.ts";
+import { SqtsTokenKind, type SqtsToken } from "@/parser/lexer.ts";
 
 export interface ParserState {
     input: string;

@@ -1,8 +1,12 @@
-import { SqtsParseError, SqtsParseErrorCode, createSourceLocator } from "./errors.ts";
-import { SqtsTokenKind } from "./lexer.ts";
-import { extractOperationPlaceholders } from "./placeholders.ts";
-import { spanFromOffsets } from "./positions.ts";
-import { scanBlockStatements, scanSingleStatement } from "./scanner.ts";
+import {
+    SqtsParseError,
+    SqtsParseErrorCode,
+    createSourceLocator,
+} from "@/parser/errors.ts";
+import { SqtsTokenKind, lexSqts } from "@/parser/lexer.ts";
+import { extractOperationPlaceholders } from "@/parser/extractOperationPlaceholders.ts";
+import { spanFromOffsets } from "@/parser/spanFromOffsets.ts";
+import { scanBlockStatements, scanSingleStatement } from "@/parser/scanner.ts";
 import {
     advanceCursorToOffset,
     consumeToken,
@@ -10,9 +14,12 @@ import {
     nonTriviaToken,
     skipTrivia,
     type ParserState,
-} from "./state.ts";
-import type { SqtsDocument, SqtsOperation, SqtsOperationBodyKind } from "./types.ts";
-import { lexSqts } from "./lexer.ts";
+} from "@/parser/state.ts";
+import {
+    SqtsOperationBodyKind,
+    type SqtsDocument,
+    type SqtsOperation,
+} from "@/parser/types.ts";
 
 interface ParsedBody {
     bodyKind: SqtsOperationBodyKind;
@@ -134,7 +141,7 @@ function parseOperationBody(state: ParserState): ParsedBody {
         }
 
         return {
-            bodyKind: "block",
+            bodyKind: SqtsOperationBodyKind.Block,
             statements: block.statements,
             endOffset,
         };
@@ -157,7 +164,7 @@ function parseOperationBody(state: ParserState): ParsedBody {
     advanceCursorToOffset(state, single.semicolonOffset + 1);
 
     return {
-        bodyKind: "single",
+        bodyKind: SqtsOperationBodyKind.Single,
         statements: [single.statement],
         endOffset: single.semicolonOffset + 1,
     };

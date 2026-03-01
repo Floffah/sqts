@@ -10,7 +10,7 @@
     "scripts": {
         "dev": "turbo dev",
         "build": "turbo build",
-        "lint": "eslint . --concurrency=auto && turbo typecheck",
+        "lint": "eslint . && turbo typecheck",
         "test": "turbo test",
         "test-examples": "bun run build && turbo test --filter=example-*",
         "check": "bun run lint && bun run build && bun run test"

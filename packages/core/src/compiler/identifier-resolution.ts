@@ -1,11 +1,9 @@
 import type { IdentifierNode, SelectStatement } from "@sqts/sql";
 
-import type { CompileContext } from "@/compiler/context.ts";
-import {
-    CompilerError,
-    CompilerErrorCode,
-} from "@/compiler/errors.ts";
-import { schemaColumnToType } from "@/compiler/models.ts";
+import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
+import type { CompileContext } from "@/compiler/getCompileContext.ts";
+import { schemaColumnToType } from "@/compiler/lib/schemaColumnToType.ts";
+import { toTableKeyFromRef } from "@/compiler/lib/toTableKeyFromRef.ts";
 import type { SqtsOperation } from "@/parser";
 
 export function resolveIdentifierType(
@@ -93,38 +91,4 @@ export function resolveIdentifierType(
     }
 
     return schemaColumnToType(column.affinity, column.nullable);
-}
-
-export function buildTableAliasMap(select: SelectStatement): Map<string, string> {
-    const aliasMap = new Map<string, string>();
-    if (!select.from) {
-        return aliasMap;
-    }
-
-    const refs = [select.from.base, ...select.from.joins.map((join) => join.table)];
-
-    for (const ref of refs) {
-        const tableKey = toTableKeyFromRef(
-            ref.schema?.normalized,
-            ref.name.normalized,
-        );
-
-        aliasMap.set(ref.name.normalized, tableKey);
-        if (ref.alias) {
-            aliasMap.set(ref.alias.normalized, tableKey);
-        }
-    }
-
-    return aliasMap;
-}
-
-export function toTableKeyFromRef(
-    schema: string | undefined,
-    table: string,
-): string {
-    return `${schema ?? "main"}.${table}`;
-}
-
-export function stripPlaceholderPrefix(value: string): string {
-    return value.startsWith("$") ? value.slice(1) : value;
 }

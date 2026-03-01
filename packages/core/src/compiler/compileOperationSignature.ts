@@ -1,23 +1,16 @@
-import type { CompileContext } from "@/compiler/context.ts";
-import { inferPlaceholderTypes } from "@/compiler/placeholder-inference.ts";
-import { stripPlaceholderPrefix } from "@/compiler/identifier-resolution.ts";
-import { resolveSelectOutputInfo } from "@/compiler/select-output.ts";
+import type { OperationAnalysis } from "@/compiler/analyzeOperation.ts";
+import { stripPlaceholderPrefix } from "@/compiler/lib/stripPlaceholderPrefix.ts";
 import type { SqtsOperation } from "@/parser";
 
 export function compileOperationSignature(
     operation: SqtsOperation,
-    ctx: CompileContext,
-    sourcePath: string,
+    analysis: OperationAnalysis,
 ): {
     functionBody: string;
     modelImport?: string;
 } {
     const placeholders = operation.placeholders.map(stripPlaceholderPrefix);
-    const inferredPlaceholderTypes = inferPlaceholderTypes(
-        operation,
-        ctx,
-        sourcePath,
-    );
+    const inferredPlaceholderTypes = analysis.inferredPlaceholderTypes;
 
     const paramsEntries = placeholders.map((placeholder) => {
         const inferred = inferredPlaceholderTypes.get(placeholder);
@@ -29,7 +22,7 @@ export function compileOperationSignature(
             ? "{}"
             : `{ ${paramsEntries.map(([name, type]) => `${name}: ${type};`).join(" ")} }`;
 
-    const selectInfo = resolveSelectOutputInfo(operation, ctx, sourcePath);
+    const selectInfo = analysis.outputInfo;
     const returnType = selectInfo?.returnType ?? "void";
 
     const functionBody = [

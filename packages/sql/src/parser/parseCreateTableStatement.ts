@@ -1,4 +1,9 @@
 import { inferSqliteAffinity, parseTypeArguments } from "@/parser/affinity.ts";
+import {
+    ForeignKeyDeferrableMode,
+    ForeignKeyInitiallyMode,
+    ReferentialAction,
+} from "@/parser/ast.ts";
 import type {
     ColumnConstraintNode,
     ColumnDefinition,
@@ -7,7 +12,6 @@ import type {
     ForeignKeyReferenceNode,
     IdentifierNode,
     IndexedColumnNode,
-    ReferentialAction,
     TableConstraintNode,
     TypeNameNode,
 } from "@/parser/ast.ts";
@@ -655,8 +659,8 @@ function parseReferencesClause(state: ParserState): ForeignKeyReferenceNode {
     let onDelete: ReferentialAction | undefined;
     let onUpdate: ReferentialAction | undefined;
     let match: string | undefined;
-    let deferrable: "deferrable" | "not_deferrable" | undefined;
-    let initially: "deferred" | "immediate" | undefined;
+    let deferrable: ForeignKeyDeferrableMode | undefined;
+    let initially: ForeignKeyInitiallyMode | undefined;
 
     while (true) {
         if (matchKeyword(state, "ON")) {
@@ -700,12 +704,12 @@ function parseReferencesClause(state: ParserState): ForeignKeyReferenceNode {
 
         if (matchKeyword(state, "NOT")) {
             expectKeyword(state, "DEFERRABLE", "Expected DEFERRABLE after NOT");
-            deferrable = "not_deferrable";
+            deferrable = ForeignKeyDeferrableMode.NotDeferrable;
             continue;
         }
 
         if (matchKeyword(state, "DEFERRABLE")) {
-            deferrable = "deferrable";
+            deferrable = ForeignKeyDeferrableMode.Deferrable;
             if (matchKeyword(state, "INITIALLY")) {
                 initially = parseInitiallyMode(state);
             }
@@ -739,24 +743,24 @@ function parseReferencesClause(state: ParserState): ForeignKeyReferenceNode {
 function parseReferentialAction(state: ParserState): ReferentialAction {
     if (matchKeyword(state, "SET")) {
         if (matchKeyword(state, "NULL")) {
-            return "set_null";
+            return ReferentialAction.SetNull;
         }
 
         expectKeyword(state, "DEFAULT", "Expected NULL or DEFAULT after SET");
-        return "set_default";
+        return ReferentialAction.SetDefault;
     }
 
     if (matchKeyword(state, "CASCADE")) {
-        return "cascade";
+        return ReferentialAction.Cascade;
     }
 
     if (matchKeyword(state, "RESTRICT")) {
-        return "restrict";
+        return ReferentialAction.Restrict;
     }
 
     if (matchKeyword(state, "NO")) {
         expectKeyword(state, "ACTION", "Expected ACTION after NO");
-        return "no_action";
+        return ReferentialAction.NoAction;
     }
 
     throw unexpectedTokenError(
@@ -766,13 +770,13 @@ function parseReferentialAction(state: ParserState): ReferentialAction {
     );
 }
 
-function parseInitiallyMode(state: ParserState): "deferred" | "immediate" {
+function parseInitiallyMode(state: ParserState): ForeignKeyInitiallyMode {
     if (matchKeyword(state, "DEFERRED")) {
-        return "deferred";
+        return ForeignKeyInitiallyMode.Deferred;
     }
 
     expectKeyword(state, "IMMEDIATE", "Expected DEFERRED or IMMEDIATE");
-    return "immediate";
+    return ForeignKeyInitiallyMode.Immediate;
 }
 
 function parseIdentifierList(state: ParserState): IdentifierNode[] {

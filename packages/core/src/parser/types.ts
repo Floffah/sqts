@@ -1,4 +1,7 @@
-export type SqtsOperationBodyKind = "single" | "block";
+export enum SqtsOperationBodyKind {
+    Single = "single",
+    Block = "block",
+}
 
 export interface SqtsSourcePosition {
     offset: number;

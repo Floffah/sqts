@@ -4,6 +4,7 @@ import {
     parseDocument,
     SqtsParseError,
     SqtsParseErrorCode,
+    SqtsOperationBodyKind,
 } from "./index.ts";
 
 describe("parseDocument", () => {
@@ -13,7 +14,9 @@ describe("parseDocument", () => {
 
         expect(document.operationNames).toEqual(["GetUser"]);
         expect(document.operations).toHaveLength(1);
-        expect(document.operations[0]?.bodyKind).toBe("single");
+        expect(document.operations[0]?.bodyKind).toBe(
+            SqtsOperationBodyKind.Single,
+        );
         expect(document.operations[0]?.statements[0]?.sql).toBe(
             "SELECT id, email FROM users WHERE id = $id",
         );
@@ -31,7 +34,7 @@ UpdateUser => (
         const document = parseDocument(input);
         const operation = document.operations[0]!;
 
-        expect(operation.bodyKind).toBe("block");
+        expect(operation.bodyKind).toBe(SqtsOperationBodyKind.Block);
         expect(operation.statements).toHaveLength(2);
         expect(operation.placeholders).toEqual(["$name", "$id"]);
     });
@@ -40,7 +43,7 @@ UpdateUser => (
         const document = parseDocument("Noop => ()");
         const operation = document.operations[0]!;
 
-        expect(operation.bodyKind).toBe("block");
+        expect(operation.bodyKind).toBe(SqtsOperationBodyKind.Block);
         expect(operation.statements).toEqual([]);
         expect(operation.placeholders).toEqual([]);
     });

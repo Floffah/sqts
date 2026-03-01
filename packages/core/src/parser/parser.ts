@@ -1,3 +1,3 @@
-export * from "./errors.ts";
-export * from "./parse.ts";
-export * from "./types.ts";
+export * from "@/parser/errors.ts";
+export * from "@/parser/parseDocument.ts";
+export * from "@/parser/types.ts";
