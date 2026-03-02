@@ -14,16 +14,18 @@ import { compileModelTypes } from "@/compiler/models.ts";
 interface CompileOptions {
     ctx?: CompileContext;
     cwd?: string;
+    inMemory?: boolean;
 }
 
 export async function watchAndCompileProject({
     ctx: propsCtx,
     cwd = process.cwd(),
+    inMemory,
 }: CompileOptions = {}) {
     let ctx = propsCtx ?? (await getCompileContext(cwd));
 
     console.log("[SQTS] Compiling project...");
-    await compileProject({ ctx, cwd });
+    await compileProject({ ctx, cwd, inMemory });
 
     console.log("[SQTS] Compilation complete. Watching for changes...");
     const watcher = watch(".", {
@@ -34,11 +36,15 @@ export async function watchAndCompileProject({
         alwaysStat: true,
 
         ignored: (path, stats) => {
-            return !!(
+            if (
                 stats?.isFile() &&
                 !path.endsWith(".sqts") &&
                 !path.endsWith(".sql")
-            );
+            ) {
+                return true;
+            }
+
+            return path.includes("node_modules") || path.includes("dist");
         },
     });
 
@@ -60,7 +66,7 @@ export async function watchAndCompileProject({
             console.log(`[SQTS] Detected change in ${path}. Recompiling...`);
             try {
                 const now = new Date();
-                await compileProject({ ctx, cwd });
+                await compileProject({ ctx, cwd, inMemory });
                 const duration = new Date().getTime() - now.getTime();
                 console.log(`[SQTS] Recompilation complete in ${duration}ms.`);
             } catch (error) {
@@ -74,6 +80,7 @@ export async function watchAndCompileProject({
 
     watcher.on("add", reactToChange);
     watcher.on("change", reactToChange);
+    watcher.on("unlink", reactToChange);
 
     return watcher;
 }
@@ -81,6 +88,7 @@ export async function watchAndCompileProject({
 export async function compileProject({
     ctx: propsCtx,
     cwd = process.cwd(),
+    inMemory,
 }: CompileOptions = {}) {
     const ctx = propsCtx ?? (await getCompileContext(cwd));
 
@@ -97,6 +105,7 @@ export async function compileProject({
 
     const tsProj = new Project({
         compilerOptions: ctx.tsCompilerOptions,
+        useInMemoryFileSystem: inMemory,
     });
 
     if (!ctx.config.compiler?.outDir) {
@@ -125,4 +134,6 @@ export async function compileProject({
     finalOutputFile.formatText();
 
     await tsProj.save();
+
+    return tsProj;
 }

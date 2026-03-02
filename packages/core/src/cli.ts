@@ -18,7 +18,7 @@ program
     .description("Compile SQL files to TypeScript")
     .option("--watch", "Watch for changes and recompile automatically")
     .action(async function () {
-        const opts = this.opts();
+        const opts = this.opts<{ watch?: boolean }>();
 
         if (opts.watch) {
             await watchAndCompileProject();
