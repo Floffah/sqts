@@ -126,9 +126,10 @@ CREATE TABLE users (
             );
 
             await watcher.emit("change", "queries/user.sqts");
-            await sleep(450);
-
-            const updated = await readFile(fixture.outputPath, "utf-8");
+            const updated = await waitForFileToContain(
+                fixture.outputPath,
+                "export async function ListUsers",
+            );
             expect(updated).toContain("export async function ListUsers");
         } finally {
             await watcher.close();
@@ -166,9 +167,10 @@ CREATE TABLE users (
             );
 
             await watcher.emit("change", "migrations/0001-init.sql");
-            await sleep(500);
-
-            const updated = await readFile(fixture.outputPath, "utf-8");
+            const updated = await waitForFileToContain(
+                fixture.outputPath,
+                "params: { id: string; }",
+            );
             expect(updated).toContain("params: { id: string; }");
         } finally {
             await watcher.close();
@@ -200,7 +202,7 @@ CREATE TABLE users (
                 "ListUsers => SELECT * FROM users WHERE users.id = $id;",
             );
             await watcher.emit("change", "queries/user.sqts");
-            await sleep(450);
+            await sleep(900);
 
             expect(await fileExists(fixture.outputPath)).toBe(false);
 
@@ -301,4 +303,32 @@ function sleep(ms: number): Promise<void> {
     return new Promise((resolveSleep) => {
         setTimeout(resolveSleep, ms);
     });
+}
+
+async function waitForFileToContain(
+    path: string,
+    expectedSubstring: string,
+    options: {
+        timeoutMs?: number;
+        intervalMs?: number;
+    } = {},
+): Promise<string> {
+    const timeoutMs = options.timeoutMs ?? 5000;
+    const intervalMs = options.intervalMs ?? 50;
+    const deadline = Date.now() + timeoutMs;
+    let lastContent = "";
+
+    while (Date.now() < deadline) {
+        if (await fileExists(path)) {
+            lastContent = await readFile(path, "utf-8");
+            if (lastContent.includes(expectedSubstring)) {
+                return lastContent;
+            }
+        }
+        await sleep(intervalMs);
+    }
+
+    throw new Error(
+        `Timed out waiting for file "${path}" to contain "${expectedSubstring}". Last content:\n${lastContent}`,
+    );
 }
