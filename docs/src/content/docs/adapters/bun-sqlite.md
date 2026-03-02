@@ -3,24 +3,28 @@ title: Bun SQLite Adapter
 description: Using SQTS with Bun's SQLite runtime.
 ---
 
-The Bun SQLite adapter is the quickest way to run SQTS queries without building custom integration code.
+When using Bun SQLite, you can use the built-in adapter.
 
-In your config, point `executor.module` to the built-in adapter:
+Create a file somewhere to contain the executor function, for example `src/db.ts`:
+
+```ts
+// src/db.ts
+import { executorWithBunSqlite } from "@sqts/core/adapters/bun-sqlite";
+import { Database } from "bun:sqlite";
+
+const db = new Database(":memory:"); // or path to your database file
+
+export const execute = executorWithBunSqlite(db);
+```
+
+In your config, point `executor.module` to this file:
 
 ```ts
 import { defineConfig } from "@sqts/core/config";
 
 export default defineConfig({
     executor: {
-        module: "@sqts/core/adapters/bun-sqlite",
+        module: "@/db",
     },
 });
 ```
-
-By default, the adapter resolves the database path from environment variables in this order:
-- `TSQL_BUN_SQLITE_PATH`
-- `BUN_SQLITE_PATH`
-- `SQLITE_DATABASE_PATH`
-- `DATABASE_URL`
-
-If you need custom connection lifecycle logic, wrappers, transactions, or observability hooks, create a custom adapter module instead and set that module in `sqts.config.*`.

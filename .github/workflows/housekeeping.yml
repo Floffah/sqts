@@ -1,29 +1,19 @@
 name: Housekeeping
 on:
   push:
-    branches: [beta]
+    branches: [main, beta]
   pull_request:
-    branches: [beta]
+    branches: [main, beta]
 jobs:
-  test:
-    name: Test
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
 
-      - run: bun install
+      - run: bun install --frozen-lockfile
       - run: bun run build
-      - run: bun test
-      - run: bun install # make sure dist folder is properly linked to example
-      - run: bun run --cwd example codegen
-      - run: bun run --cwd example index.ts
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-
-      - run: bun install
-      - run: bun run lint
+      - run: bun install --frozen-lockfile # ensure binaries are linked
+      - run: bun run check
+      - run: git diff --exit-code

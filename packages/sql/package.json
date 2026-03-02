@@ -1,0 +1,53 @@
+{
+    "name": "@sqts/sql",
+    "version": "0.0.1",
+    "private": true,
+    "description": "SQL utilities for sqts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Floffah/sqts.git"
+    },
+    "homepage": "https://floffah.github.io/sqts",
+    "license": "MIT",
+    "files": [
+        "dist",
+        "package.json",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "scripts": {
+        "build": "tsdown --minify",
+        "dev": "tsdown --watch",
+        "test": "bun test",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/bun": "latest",
+        "tsdown": "^0.21.0-beta.2",
+        "typescript": "^5.9.3"
+    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.cts",
+    "exports": {
+        ".": {
+            "development": "./src/index.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        },
+        "./*": "./*"
+    },
+    "publishConfig": {
+        "provenance": true,
+        "exports": {
+            ".": {
+                "import": "./dist/index.mjs",
+                "require": "./dist/index.cjs"
+            },
+            "./*": "./*"
+        }
+    }
+}

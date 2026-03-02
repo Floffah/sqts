@@ -1,0 +1,37 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`compile matches snapshot for comprehensive mixed operations output 1`] = `
+"import { execute as __sqtsExecute } from "@sqts/core/adapters/bun-sqlite";
+import type { Post, User } from "./types";
+
+export async function GetUser(params: { id: number; }): Promise<User[]> {
+    const __sqtsQuery0 = "SELECT * FROM users WHERE users.id = ?";
+    const __sqtsParams0 = [params.id];
+    const __sqtsResult0 = await __sqtsExecute(__sqtsQuery0, __sqtsParams0, { queryName: "GetUser", sourceFile: "queries/mixed.sqts", statementIndex: 0 });
+    const __sqtsRows = (__sqtsResult0.rows ?? []) as Record<string, unknown>[];
+    return __sqtsRows.map((__sqtsRow) => ({
+        id: __sqtsRow["id"] as number,
+        email: __sqtsRow["email"] as string,
+    }) as User);
+}
+
+export async function ListPosts(params: { id: number; }): Promise<Post[]> {
+    const __sqtsQuery0 = "SELECT * FROM posts WHERE posts.user_id = ?";
+    const __sqtsParams0 = [params.id];
+    const __sqtsResult0 = await __sqtsExecute(__sqtsQuery0, __sqtsParams0, { queryName: "ListPosts", sourceFile: "queries/mixed.sqts", statementIndex: 0 });
+    const __sqtsRows = (__sqtsResult0.rows ?? []) as Record<string, unknown>[];
+    return __sqtsRows.map((__sqtsRow) => ({
+        id: __sqtsRow["id"] as number,
+        user_id: __sqtsRow["user_id"] as number,
+        title: __sqtsRow["title"] as string,
+    }) as Post);
+}
+
+export async function UpdateUser(params: { email: unknown; id: unknown; }): Promise<void> {
+    const __sqtsQuery0 = "UPDATE users SET email = ? WHERE id = ?";
+    const __sqtsParams0 = [params.email, params.id];
+    await __sqtsExecute(__sqtsQuery0, __sqtsParams0, { queryName: "UpdateUser", sourceFile: "queries/mixed.sqts", statementIndex: 0 });
+    return;
+}
+"
+`;

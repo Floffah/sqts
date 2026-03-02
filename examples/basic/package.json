@@ -1,0 +1,13 @@
+{
+    "name": "example-basic",
+    "private": true,
+    "scripts": {
+        "test": "bun sqts compile && bun run src/index.ts"
+    },
+    "dependencies": {
+        "@sqts/core": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.3.9"
+    }
+}

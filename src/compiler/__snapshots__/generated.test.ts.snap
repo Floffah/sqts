@@ -1,8 +1,0 @@
-// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
-
-exports[`Correctly returns single row 1`] = `
-{
-  "email": "me@example.com",
-  "id": "1",
-}
-`;

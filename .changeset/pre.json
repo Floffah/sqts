@@ -1,0 +1,8 @@
+{
+  "mode": "exit",
+  "tag": "beta",
+  "initialVersions": {
+    "@sqts/core": "0.0.0"
+  },
+  "changesets": []
+}

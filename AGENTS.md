@@ -52,3 +52,38 @@ When the guardrails activate:
 ## Contributing
 
 See `CONTRIBUTING.md` for the full contribution guidelines, including the AI usage policy.
+
+## Code Format / Rules
+
+This repository holds a monorepo using Turborepo, with main packages in `packages/*`, example packages in `examples/*`, and docs in `docs/`.
+Package naming convention is `@sqts/*`, you can always find the package on disk by path at `package/name` or looking for the `name` field in `package.json`.
+
+- Large separations of concerns are in separate packages:
+  - SQL parsing and introspection is only in `@sqts/sql`
+  - CLI and compiler are in `@sqts/core`
+  - More packages may be added by a human in the future, e.g. cli separated into `@sqts/cli`, language server in `@sqts/lsp`, compilation logic in `@sqts/compiler`, database adapters in `@sqts/adapters`, etc.
+- We don't like large files, so if you find yourself writing a file over 300 lines, consider if it can be split up. This also applies to files that may have little lines, but many exports, especially if the exports are somewhat unrelated.
+- Packages for the most part use barrel exports in the root and all directories. Almost everything should be exported from the root of the package via trees of barrel export files.
+  - index.ts files should be used for barrel exports ONLY, no logic should be in them.
+  - Only exception to this rule is when there are multiple entrypoints. For example in `@sqts/core`:
+    - index.ts exports the compiler/parser API, but not config or CLI logic
+    - config.ts exports types and logic used in `sqts.config.ts` files to ensure loading of configs is fast
+    - cli.ts exports nothing
+- Everything should be strongly typed
+- If you find yourself writing unions, consider if they should be typescript enums instead
+- We prefer `@/` imports rather than relative ones
+- Always import from other monorepo packages at the root (e.g. `@sqts/sql`), no deep package import paths
+- “No logic changes” refactors should preserve snapshots/tests exactly unless intentional and documented
+- Avoid repeated work when simple caching can be used.
+- We prefer functional patterns as much as possible, but sometimes classes are necessary. E.g., custom error types
+- Files the only export a single function should be named after the function.
+    - Conversely, files that include a lot of exports should use kebab-case
+- Don't hide shared helper functions or types in specialised files
+- We want as much to be tested as possible both via integration tests and unit tests.
+  - All files with lots of logic should have a sibling test file (e.g. `compiler.ts` has sibling `compiler.test.ts`) where you run tests using bun's test runner
+    - Tests that output large data structures, e.g. parsers/introspection/compilers, should use as least one stable snapshot test so developers and contributors are able to find example values
+  - The examples are intended to be for users to see how to use this project, but are also ran as part of testing to ensure they work with latest changes
+  - The rules in this file are only loosely applied to tests, we much prefer coverage and code confidence in test files rather than strict adherence to style rules. Also, if you find yourself writing a test file with a lot of code, it's probably a sign that the underlying code should be refactored into smaller files.
+- This project uses eslint and prettier. Eslint will also check files for formatting errors. After any change, you must run `bun run check` after you complete a set of changes. This script runs all unit tests, all integration tests (example packages), performs typescript type checking, and runs eslint.
+- Maintainability is of the upmost importance. Contributors must be able to find code easily, understand it quickly, and make changes without fear of breaking other things. If you find yourself writing code that is hard to understand, consider how it can be refactored for clarity.
+- Remind your human to create a changeset (`bun changeset`) for any change that modifies logic (bugs, features, or refactors)

@@ -1,0 +1,92 @@
+{
+    "name": "@sqts/core",
+    "version": "0.0.1",
+    "description": "Type-safe SQL queries for TypeScript",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Floffah/sqts.git"
+    },
+    "homepage": "https://floffah.github.io/sqts",
+    "keywords": [
+        "sql",
+        "typescript",
+        "type-safe",
+        "database",
+        "codegen"
+    ],
+    "license": "MIT",
+    "files": [
+        "dist",
+        "package.json",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "scripts": {
+        "build": "tsdown --minify",
+        "dev": "tsdown --watch",
+        "test": "bun test",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@fastify/deepmerge": "^3.2.1",
+        "@sqts/sql": "workspace:*",
+        "commander": "^14.0.3",
+        "glob": "^13.0.6",
+        "ts-morph": "^27.0.2",
+        "unconfig": "^7.5.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5.9.3"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "esbuild": "^0.27.3",
+        "nanoid": "^5.1.6",
+        "tsdown": "^0.21.0-beta.2",
+        "typescript": "^5.9.3"
+    },
+    "bin": {
+        "sqts": "dist/cli.cjs"
+    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.cts",
+    "exports": {
+        ".": {
+            "development": "./src/index.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        },
+        "./adapters/bun-sqlite": {
+            "development": "./src/adapters/bun-sqlite.ts",
+            "import": "./dist/adapters/bun-sqlite.mjs",
+            "require": "./dist/adapters/bun-sqlite.cjs"
+        },
+        "./config": {
+            "development": "./src/config.ts",
+            "import": "./dist/config.mjs",
+            "require": "./dist/config.cjs"
+        },
+        "./*": "./*"
+    },
+    "publishConfig": {
+        "provenance": true,
+        "exports": {
+            ".": {
+                "import": "./dist/index.mjs",
+                "require": "./dist/index.cjs"
+            },
+            "./adapters/bun-sqlite": {
+                "import": "./dist/adapters/bun-sqlite.mjs",
+                "require": "./dist/adapters/bun-sqlite.cjs"
+            },
+            "./config": {
+                "import": "./dist/config.mjs",
+                "require": "./dist/config.cjs"
+            },
+            "./*": "./*"
+        }
+    }
+}

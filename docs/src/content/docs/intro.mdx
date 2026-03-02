@@ -15,16 +15,15 @@ ORMs are almost always the best choice for developers wanting type-safety with t
 
 SQTS is a way to keep writing real SQL while getting the confidence of type-safe application code.
 
-Most teams want direct control over their queries, but still want help catching mistakes before runtime. SQTS sits in that middle ground. You define what a query expects, what it returns, and SQTS handles the compile-time wiring so your query usage stays reliable as your codebase grows.
+Most teams want direct control over their queries, but still want help catching mistakes before runtime. You write your migrations as SQL, write your operations in .sqts files (almost SQL), and SQTS will compile it into model types and callable operation functions.
 
 With SQTS, you can:
 
 - Keep SQL as SQL, instead of rewriting your data layer around an ORM query builder (ish).
-- Define typed inputs for each query so invalid parameters are caught earlier.
-- Define typed outputs so downstream code can trust query results.
+- Define migrations in SQL and get types for free.
 - Map query results into clean, predictable object shapes.
 - Use a configurable adapter so SQTS can fit your runtime setup and database connection.
-- Scale from simple read queries to write operations in the same model.
+- Supports read and write operations, with support for transactions and multiple statements in a single operation.
 
 SQTS is especially useful when you care about portability, explicit control, and long-term maintainability of your queries.
 
