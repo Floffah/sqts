@@ -1,4 +1,4 @@
-import { parseSqlite, type SelectStatement } from "@sqts/sql";
+import { parseSql, type SelectStatement } from "@sqts/sql";
 
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 import type { SqtsOperation } from "@/parser";
@@ -14,7 +14,7 @@ export function parseFirstSelectFromOperation(
 
     let parsedProgram;
     try {
-        parsedProgram = parseSqlite(`${firstStatement.sql};`);
+        parsedProgram = parseSql(`${firstStatement.sql};`);
     } catch (error) {
         const message = `Failed to parse first SQL statement for operation "${operation.name}" in "${sourcePath}": ${String(
             error instanceof Error ? error.message : error,

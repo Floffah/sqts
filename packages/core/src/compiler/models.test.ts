@@ -1,7 +1,7 @@
 import { mkdtemp } from "fs/promises";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
-import { buildSqliteSchema, parseSqlite } from "@sqts/sql";
+import { buildSqliteSchema, parseSql } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 import { Project } from "ts-morph";
 
@@ -102,7 +102,7 @@ CREATE TABLE metrics (
         const project = new Project({});
         const outdir = await mkdtemp(join(tmpdir(), "sqts-core-models-"));
         const schema = buildSqliteSchema([
-            parseSqlite("CREATE TABLE auth.users (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE auth.users (id INTEGER PRIMARY KEY);"),
         ]);
 
         await expect(
@@ -114,8 +114,8 @@ CREATE TABLE metrics (
         const project = new Project({});
         const outdir = await mkdtemp(join(tmpdir(), "sqts-core-models-"));
         const schema = buildSqliteSchema([
-            parseSqlite("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
-            parseSqlite("CREATE TABLE user (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE user (id INTEGER PRIMARY KEY);"),
         ]);
 
         await expect(
@@ -127,7 +127,7 @@ CREATE TABLE metrics (
         const project = new Project({});
         const outdir = await mkdtemp(join(tmpdir(), "sqts-core-models-"));
         const schema = buildSqliteSchema([
-            parseSqlite("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
         ]);
 
         schema.tableOrder.push("main.missing_table");
@@ -166,7 +166,7 @@ async function compileAndReadModels(sqlPrograms: string[]): Promise<{
     fileText: string;
     outputPath: string;
 }> {
-    const schema = buildSqliteSchema(sqlPrograms.map((sql) => parseSqlite(sql)));
+    const schema = buildSqliteSchema(sqlPrograms.map((sql) => parseSql(sql)));
     const project = new Project({});
     const outdir = await mkdtemp(join(tmpdir(), "sqts-core-models-"));
 

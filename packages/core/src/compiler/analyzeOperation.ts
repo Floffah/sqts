@@ -1,14 +1,14 @@
 import type { SelectStatement } from "@sqts/sql";
 
+import { compileSqlAndParams } from "@/compiler/compileSqlAndParams.ts";
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 import type { CompileContext } from "@/compiler/getCompileContext.ts";
-import { inferPlaceholderTypes } from "@/compiler/inferPlaceholderTypes.ts";
 import { buildTableAliasMap } from "@/compiler/lib/buildTableAliasMap.ts";
-import { compileSqlAndParams } from "@/compiler/lib/compileSqlAndParams.ts";
 import {
     deriveSelectProjection,
     type ProjectionField,
 } from "@/compiler/lib/deriveSelectProjection.ts";
+import { inferPlaceholderTypes } from "@/compiler/lib/inferPlaceholderTypes.ts";
 import { parseOperationStatement } from "@/compiler/lib/parseOperationStatement.ts";
 import { tableNameToTypeName } from "@/compiler/lib/tableNameToTypeName.ts";
 import { toTableKeyFromRef } from "@/compiler/lib/toTableKeyFromRef.ts";

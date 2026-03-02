@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import { resolve } from "path";
 
 import { analyzeOperation } from "@/compiler/analyzeOperation.ts";
-import { compileOperationSignature } from "@/compiler/compileOperationSignature.ts";
+import { compileOperation } from "@/compiler/compileOperation.ts";
 import type { CompileContext } from "@/compiler/getCompileContext.ts";
 import { parseDocument } from "@/parser";
 
@@ -20,7 +20,7 @@ export async function compile(
 
     for (const operation of document.operations) {
         const analysis = analyzeOperation(operation, ctx, path);
-        const compiled = compileOperationSignature(operation, analysis, path);
+        const compiled = compileOperation(operation, analysis, path);
         if (analysis.output.modelImport) {
             modelImports.add(analysis.output.modelImport);
         }

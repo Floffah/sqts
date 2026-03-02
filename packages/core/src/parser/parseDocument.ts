@@ -1,12 +1,12 @@
 import {
+    createSourceLocator,
     SqtsParseError,
     SqtsParseErrorCode,
-    createSourceLocator,
 } from "@/parser/errors.ts";
-import { SqtsTokenKind, lexSqts } from "@/parser/lexer.ts";
 import { extractOperationPlaceholders } from "@/parser/extractOperationPlaceholders.ts";
-import { spanFromOffsets } from "@/parser/spanFromOffsets.ts";
+import { lexSqts, SqtsTokenKind } from "@/parser/lexer.ts";
 import { scanBlockStatements, scanSingleStatement } from "@/parser/scanner.ts";
+import { spanFromOffsets } from "@/parser/spanFromOffsets.ts";
 import {
     advanceCursorToOffset,
     consumeToken,

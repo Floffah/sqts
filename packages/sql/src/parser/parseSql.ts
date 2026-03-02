@@ -1,29 +1,20 @@
 import type { SqlProgram, SqlStatement } from "@/parser/ast.ts";
-import { parseCreateTableStatement } from "@/parser/parseCreateTableStatement.ts";
 import {
     createSourceLocator,
     ParseError,
     ParseErrorCode,
 } from "@/parser/errors.ts";
 import { tokenizeSqlStatement } from "@/parser/lexer.ts";
+import { parseCreateTableStatement } from "@/parser/statements/createTable.ts";
+import { parseSelectStatement } from "@/parser/statements/select.ts";
 import {
     isCreateTableStatement,
     isSelectStatement,
     isWithStatement,
     splitSqlStatements,
-} from "@/parser/script.ts";
-import { parseSelectStatement } from "@/parser/parseSelectStatement.ts";
+} from "@/parser/statements/utils.ts";
 
-export interface ParseOptions {
-    dialect?: "sqlite";
-}
-
-export function parseSqlite(
-    source: string,
-    options: ParseOptions = {},
-): SqlProgram {
-    void options;
-
+export function parseSql(source: string): SqlProgram {
     const locator = createSourceLocator(source);
     const rawStatements = splitSqlStatements(source);
     const statements: SqlStatement[] = [];

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { compileSqlAndParams } from "@/compiler/lib/compileSqlAndParams.ts";
+import { compileSqlAndParams } from "@/compiler/compileSqlAndParams.ts";
 
 describe("compileSqlAndParams", () => {
     it("rewrites placeholders to positional markers in encounter order", () => {

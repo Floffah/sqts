@@ -1,9 +1,9 @@
-import { buildSqliteSchema, parseSqlite } from "@sqts/sql";
+import { buildSqliteSchema, parseSql } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 import type { CompileContext } from "@/compiler/getCompileContext.ts";
-import { inferPlaceholderTypes } from "@/compiler/inferPlaceholderTypes.ts";
+import { inferPlaceholderTypes } from "@/compiler/lib/inferPlaceholderTypes.ts";
 import { parseDocument, type SqtsOperation } from "@/parser";
 
 describe("inferPlaceholderTypes", () => {
@@ -68,7 +68,7 @@ function createCompileContext(): CompileContext {
             },
         },
         schema: buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL

@@ -50,7 +50,10 @@ export function nonTriviaToken(state: ParserState, startAt: number): SqtsToken {
     }
 }
 
-export function advanceCursorToOffset(state: ParserState, offset: number): void {
+export function advanceCursorToOffset(
+    state: ParserState,
+    offset: number,
+): void {
     while (state.cursor < state.tokens.length) {
         const token = currentToken(state);
         if (token.start >= offset || token.kind === SqtsTokenKind.Eof) {

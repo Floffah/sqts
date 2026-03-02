@@ -88,7 +88,13 @@ export function scanBlockStatements(
 
         const char = state.input[cursor]!;
         if (char === ";" && scanner.parenDepth === 0) {
-            if (!hasExecutableContent(state.input, currentStatementStart, cursor)) {
+            if (
+                !hasExecutableContent(
+                    state.input,
+                    currentStatementStart,
+                    cursor,
+                )
+            ) {
                 throw new SqtsParseError({
                     code: SqtsParseErrorCode.ExpectedStatement,
                     message: "Expected SQL statement before semicolon",
@@ -97,7 +103,9 @@ export function scanBlockStatements(
                 });
             }
 
-            statements.push(buildStatement(state, currentStatementStart, cursor));
+            statements.push(
+                buildStatement(state, currentStatementStart, cursor),
+            );
             cursor += 1;
             currentStatementStart = cursor;
             continue;

@@ -2,7 +2,7 @@ import type { OperationAnalysis } from "@/compiler/analyzeOperation.ts";
 import { stripPlaceholderPrefix } from "@/compiler/lib/stripPlaceholderPrefix.ts";
 import type { SqtsOperation } from "@/parser";
 
-export function compileOperationSignature(
+export function compileOperation(
     operation: SqtsOperation,
     analysis: OperationAnalysis,
     sourcePath: string,
@@ -36,7 +36,9 @@ export function compileOperationSignature(
             .map((placeholder) => `params.${placeholder}`)
             .join(", ");
 
-        lines.push(`    const ${queryVar} = ${JSON.stringify(statement.compiledSql)};`);
+        lines.push(
+            `    const ${queryVar} = ${JSON.stringify(statement.compiledSql)};`,
+        );
         lines.push(`    const ${paramsVar} = [${paramsArray}];`);
         if (statement.statementIndex === analysis.output.statementIndex) {
             lines.push(
@@ -70,7 +72,9 @@ export function compileOperationSignature(
     const outputValueType = analysis.output.valueType ?? "{}";
 
     if (analysis.output.fields.length === 0) {
-        lines.push(`    return __sqtsRows.map(() => ({} as ${outputValueType}));`);
+        lines.push(
+            `    return __sqtsRows.map(() => ({} as ${outputValueType}));`,
+        );
         lines.push("}");
         return {
             functionBody: lines.join("\n"),

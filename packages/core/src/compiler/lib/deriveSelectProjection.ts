@@ -137,9 +137,10 @@ function parseWildcardPath(rawExpression: string): string[] | null {
         return [];
     }
 
-    const wildcardMatch = /^([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)\.\*$/.exec(
-        rawExpression,
-    );
+    const wildcardMatch =
+        /^([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)\.\*$/.exec(
+            rawExpression,
+        );
     if (!wildcardMatch) {
         return null;
     }

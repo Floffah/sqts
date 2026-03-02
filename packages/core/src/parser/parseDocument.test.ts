@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 
 import {
     parseDocument,
+    SqtsOperationBodyKind,
     SqtsParseError,
     SqtsParseErrorCode,
-    SqtsOperationBodyKind,
 } from "./index.ts";
 
 describe("parseDocument", () => {

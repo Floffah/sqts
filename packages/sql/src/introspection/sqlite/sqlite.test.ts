@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import {
     buildSqliteSchema,
-    parseSqlite,
+    parseSql,
     SchemaBuildError,
     SchemaBuildErrorCode,
     SqliteAffinity,
@@ -12,10 +12,10 @@ import type { SqlProgram } from "@/parser/ast.ts";
 describe("buildSqliteSchema", () => {
     it("builds schema from multiple programs in order", () => {
         const programs = [
-            parseSqlite(
+            parseSql(
                 "CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT);",
             ),
-            parseSqlite(
+            parseSql(
                 "CREATE TABLE posts (id INTEGER PRIMARY KEY, user_id INTEGER);",
             ),
         ];
@@ -31,8 +31,8 @@ describe("buildSqliteSchema", () => {
 
     it("throws duplicate-table error without IF NOT EXISTS", () => {
         const programs = [
-            parseSqlite("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
-            parseSqlite("CREATE TABLE main.users (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE main.users (id INTEGER PRIMARY KEY);"),
         ];
 
         expect(() => buildSqliteSchema(programs)).toThrow(SchemaBuildError);
@@ -48,7 +48,7 @@ describe("buildSqliteSchema", () => {
 
     it("matches snapshot for comprehensive schema output", () => {
         const programs = [
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL UNIQUE,
@@ -59,7 +59,7 @@ CREATE TABLE users (
   CHECK (length(email) > 3)
 ) STRICT;
             `),
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE posts (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL,
@@ -74,10 +74,10 @@ CREATE TABLE posts (
 
     it("treats IF NOT EXISTS duplicate as no-op", () => {
         const programs = [
-            parseSqlite(
+            parseSql(
                 "CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT);",
             ),
-            parseSqlite(
+            parseSql(
                 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT, extra TEXT);",
             ),
         ];
@@ -91,7 +91,7 @@ CREATE TABLE posts (
     });
 
     it("excludes TEMP/TEMPORARY tables", () => {
-        const program = parseSqlite(`
+        const program = parseSql(`
 CREATE TEMP TABLE cache (id INTEGER);
 CREATE TABLE users (id INTEGER PRIMARY KEY);
         `);
@@ -104,10 +104,8 @@ CREATE TABLE users (id INTEGER PRIMARY KEY);
 
     it("uses composite schema.table identity", () => {
         const schema = buildSqliteSchema([
-            parseSqlite("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
-            parseSqlite(
-                "CREATE TABLE analytics.users (id INTEGER PRIMARY KEY);",
-            ),
+            parseSql("CREATE TABLE users (id INTEGER PRIMARY KEY);"),
+            parseSql("CREATE TABLE analytics.users (id INTEGER PRIMARY KEY);"),
         ]);
 
         expect(schema.tables["main.users"]).toBeDefined();
@@ -116,11 +114,11 @@ CREATE TABLE users (id INTEGER PRIMARY KEY);
 
     it("ignores SELECT statements when building schema", () => {
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (id INTEGER PRIMARY KEY);
 SELECT id FROM users;
             `),
-            parseSqlite(`
+            parseSql(`
 SELECT 1;
 CREATE TABLE posts (id INTEGER PRIMARY KEY, user_id INTEGER);
             `),
@@ -133,7 +131,7 @@ CREATE TABLE posts (id INTEGER PRIMARY KEY, user_id INTEGER);
 
     it("maps column metadata and constraint details", () => {
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email VARCHAR(255) COLLATE NOCASE NOT NULL UNIQUE CHECK (length(email) > 3) DEFAULT 'x'
@@ -159,7 +157,7 @@ CREATE TABLE users (
 
     it("derives nullability with explicit constraints and primary keys", () => {
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   optional TEXT NULL,
@@ -167,7 +165,7 @@ CREATE TABLE users (
   plain TEXT
 );
             `),
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE posts (
   id INTEGER,
   slug TEXT,
@@ -189,7 +187,7 @@ CREATE TABLE posts (
 
     it("captures column-level and table-level foreign keys", () => {
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE orders (
   id INTEGER PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,

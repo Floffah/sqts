@@ -29,7 +29,7 @@ import {
     unexpectedTokenError,
     type ParseContext,
     type ParserState,
-} from "@/parser/shared.ts";
+} from "@/parser/utils.ts";
 
 const CLAUSE_BOUNDARY_KEYWORDS = new Set([
     "FROM",

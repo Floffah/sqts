@@ -1,6 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import { resolve } from "path";
-import { buildSqliteSchema, parseSqlite, type SqlProgram } from "@sqts/sql";
+import { buildSqliteSchema, parseSql, type SqlProgram } from "@sqts/sql";
 
 import { getConfig } from "@/lib/getConfig.ts";
 
@@ -24,7 +24,7 @@ export async function getCompileContext(cwd = process.cwd()) {
                 resolve(pathToMigrations, file),
                 "utf-8",
             );
-            const program = parseSqlite(programText, {});
+            const program = parseSql(programText);
             programs.push(program);
         }
     }

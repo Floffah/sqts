@@ -102,13 +102,29 @@ export function splitSqlStatements(source: string): ScriptStatement[] {
 
         if (char === ";") {
             const end = i + 1;
-            pushStatement(statements, source, start, end);
+            const text = source.slice(start, end);
+            if (source.trim().length > 0) {
+                statements.push({
+                    text,
+                    start,
+                    end,
+                    index: statements.length,
+                });
+            }
             start = end;
         }
     }
 
     if (start < source.length) {
-        pushStatement(statements, source, start, source.length);
+        const text = source.slice(start, source.length);
+        if (source.trim().length > 0) {
+            statements.push({
+                text,
+                start,
+                end: source.length,
+                index: statements.length,
+            });
+        }
     }
 
     return statements;
@@ -129,27 +145,7 @@ export function isWithStatement(statementText: string): boolean {
     return keyword === "WITH";
 }
 
-function pushStatement(
-    statements: ScriptStatement[],
-    source: string,
-    start: number,
-    end: number,
-): void {
-    const text = source.slice(start, end);
-
-    if (text.trim().length === 0) {
-        return;
-    }
-
-    statements.push({
-        text,
-        start,
-        end,
-        index: statements.length,
-    });
-}
-
-function stripLeadingTrivia(text: string): string {
+export function stripLeadingTrivia(text: string): string {
     let cursor = 0;
 
     while (cursor < text.length) {
@@ -187,7 +183,7 @@ function stripLeadingTrivia(text: string): string {
     return text.slice(cursor);
 }
 
-function getLeadingKeyword(text: string): string | undefined {
+export function getLeadingKeyword(text: string): string | undefined {
     const cleaned = stripLeadingTrivia(text);
     const match = /^([A-Za-z_]+)/.exec(cleaned);
     return match?.[1]?.toUpperCase();

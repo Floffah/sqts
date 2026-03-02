@@ -3,7 +3,9 @@ export interface CompiledSqlAndParams {
     placeholderOrder: string[];
 }
 
-export function compileSqlAndParams(statementSql: string): CompiledSqlAndParams {
+export function compileSqlAndParams(
+    statementSql: string,
+): CompiledSqlAndParams {
     const placeholderOrder: string[] = [];
     let compiledSql = "";
 

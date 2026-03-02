@@ -1,4 +1,4 @@
-import { parseSqlite, type SelectStatement } from "@sqts/sql";
+import { parseSql, type SelectStatement } from "@sqts/sql";
 
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 
@@ -15,7 +15,7 @@ export function parseOperationStatement(options: {
 }): ParsedOperationStatement {
     let parsedProgram;
     try {
-        parsedProgram = parseSqlite(`${options.statementSql};`);
+        parsedProgram = parseSql(`${options.statementSql};`);
     } catch (error) {
         throw new CompilerError({
             code: CompilerErrorCode.FailedToParseOperationSql,

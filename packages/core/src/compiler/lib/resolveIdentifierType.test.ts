@@ -1,6 +1,6 @@
 import {
     buildSqliteSchema,
-    parseSqlite,
+    parseSql,
     type IdentifierNode,
     type SelectStatement,
 } from "@sqts/sql";
@@ -8,8 +8,8 @@ import { describe, expect, it } from "bun:test";
 
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 import type { CompileContext } from "@/compiler/getCompileContext.ts";
-import { resolveIdentifierType } from "@/compiler/identifier-resolution.ts";
 import { buildTableAliasMap } from "@/compiler/lib/buildTableAliasMap.ts";
+import { resolveIdentifierType } from "@/compiler/lib/resolveIdentifierType.ts";
 import { parseDocument, type SqtsOperation } from "@/parser";
 
 const DUMMY_POSITION = {
@@ -163,7 +163,7 @@ function parseOperation(input: string): SqtsOperation {
 }
 
 function parseSelect(input: string): SelectStatement {
-    const statement = parseSqlite(input).statements[0];
+    const statement = parseSql(input).statements[0];
     if (!statement || statement.kind !== "select") {
         throw new Error("Expected select statement");
     }
@@ -191,7 +191,7 @@ function createCompileContext(schemaSql: string): CompileContext {
                 modelTypes: true,
             },
         },
-        schema: buildSqliteSchema([parseSqlite(schemaSql)]),
+        schema: buildSqliteSchema([parseSql(schemaSql)]),
     };
 }
 

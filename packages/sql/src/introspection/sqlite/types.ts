@@ -1,15 +1,12 @@
-import type {
-    ForeignKeyDeferrableMode,
-    ForeignKeyInitiallyMode,
-    ReferentialAction,
+import {
     SqliteAffinity,
-} from "@/parser/ast.ts";
+    type ForeignKeyDeferrableMode,
+    type ForeignKeyInitiallyMode,
+    type ReferentialAction,
+} from "@/parser";
 
 export type SqliteTableKey = string;
-
 export type SqliteForeignKeyAction = ReferentialAction;
-
-export type BuildSchemaOptions = Record<string, never>;
 
 export interface SchemaProvenance {
     programIndex: number;
@@ -110,4 +107,22 @@ export interface SqliteSchema {
     dialect: "sqlite";
     tables: Record<SqliteTableKey, SqliteSchemaTable>;
     tableOrder: SqliteTableKey[];
+}
+
+export interface SQLiteWorkingColumn {
+    name: string;
+    rawName: string;
+    declaredType?: string;
+    typeBaseName?: string;
+    affinity: SqliteAffinity;
+    typeArgs?: number[];
+    explicitNullable?: boolean;
+    defaultExpression?: string;
+    collation?: string;
+    primaryKey: boolean;
+    autoincrement: boolean;
+    unique: boolean;
+    checks: string[];
+    references?: SqliteForeignKey;
+    provenance: SchemaProvenance;
 }

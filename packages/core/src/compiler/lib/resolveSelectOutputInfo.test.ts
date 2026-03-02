@@ -1,9 +1,9 @@
-import { buildSqliteSchema, parseSqlite } from "@sqts/sql";
+import { buildSqliteSchema, parseSql } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 import type { CompileContext } from "@/compiler/getCompileContext.ts";
-import { resolveSelectOutputInfo } from "@/compiler/select-output.ts";
+import { resolveSelectOutputInfo } from "@/compiler/lib/resolveSelectOutputInfo.ts";
 import { parseDocument, type SqtsOperation } from "@/parser";
 
 describe("resolveSelectOutputInfo", () => {
@@ -76,7 +76,7 @@ function createCompileContext(modelTypes: boolean): CompileContext {
             },
         },
         schema: buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL

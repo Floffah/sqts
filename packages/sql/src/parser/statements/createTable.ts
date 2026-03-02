@@ -35,7 +35,7 @@ import {
     unexpectedTokenError,
     type ParseContext,
     type ParserState,
-} from "@/parser/shared.ts";
+} from "@/parser/utils.ts";
 
 const COLUMN_CONSTRAINT_KEYWORDS = new Set([
     "CONSTRAINT",

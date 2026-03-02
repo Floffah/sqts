@@ -1,7 +1,7 @@
-import { mkdtemp, mkdir, writeFile } from "fs/promises";
+import { mkdir, mkdtemp, writeFile } from "fs/promises";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
-import { buildSqliteSchema, parseSqlite } from "@sqts/sql";
+import { buildSqliteSchema, parseSql } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 
 import { compile } from "@/compiler/compile.ts";
@@ -18,7 +18,7 @@ describe("compile", () => {
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL
@@ -39,13 +39,17 @@ CREATE TABLE users (
         expect(output).toContain(
             "export async function GetUser(params: { id: number; email: string; }): Promise<User[]> {",
         );
-        expect(output).toContain("const __sqtsQuery0 = \"SELECT users.id, users.email FROM users WHERE users.id = ? AND users.email = ?\";");
-        expect(output).toContain("const __sqtsParams0 = [params.id, params.email];");
+        expect(output).toContain(
+            'const __sqtsQuery0 = "SELECT users.id, users.email FROM users WHERE users.id = ? AND users.email = ?";',
+        );
+        expect(output).toContain(
+            "const __sqtsParams0 = [params.id, params.email];",
+        );
         expect(output).toContain(
             'const __sqtsResult0 = await __sqtsExecute(__sqtsQuery0, __sqtsParams0, { queryName: "GetUser", sourceFile: "queries/getUser.sqts", statementIndex: 0 });',
         );
-        expect(output).toContain("id: __sqtsRow[\"id\"] as number");
-        expect(output).toContain("email: __sqtsRow[\"email\"] as string");
+        expect(output).toContain('id: __sqtsRow["id"] as number');
+        expect(output).toContain('email: __sqtsRow["email"] as string');
         expect(output).toContain("}) as User);");
     });
 
@@ -59,7 +63,7 @@ CREATE TABLE users (
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE posts (
   id INTEGER PRIMARY KEY,
   owner_id INTEGER NOT NULL
@@ -73,7 +77,9 @@ CREATE TABLE posts (
             cwd,
         );
 
-        expect(output).toContain("const __sqtsParams0 = [params.id, params.id];");
+        expect(output).toContain(
+            "const __sqtsParams0 = [params.id, params.id];",
+        );
     });
 
     it("emits write-only operation bodies returning Promise<void>", async () => {
@@ -86,7 +92,7 @@ CREATE TABLE posts (
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL
@@ -125,7 +131,7 @@ UpsertAndFetch => (
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL
@@ -143,17 +149,25 @@ CREATE TABLE users (
         expect(output).toContain(
             "export async function UpsertAndFetch(params: { email: unknown; id: number; }): Promise<User[]> {",
         );
-        expect(output).toContain("const __sqtsQuery0 = \"UPDATE users SET email = ? WHERE id = ?\";");
-        expect(output).toContain("const __sqtsParams0 = [params.email, params.id];");
+        expect(output).toContain(
+            'const __sqtsQuery0 = "UPDATE users SET email = ? WHERE id = ?";',
+        );
+        expect(output).toContain(
+            "const __sqtsParams0 = [params.email, params.id];",
+        );
         expect(output).toContain(
             'await __sqtsExecute(__sqtsQuery0, __sqtsParams0, { queryName: "UpsertAndFetch", sourceFile: "queries/upsertAndFetch.sqts", statementIndex: 0 });',
         );
-        expect(output).toContain("const __sqtsQuery1 = \"SELECT users.id, users.email FROM users WHERE users.id = ?\";");
+        expect(output).toContain(
+            'const __sqtsQuery1 = "SELECT users.id, users.email FROM users WHERE users.id = ?";',
+        );
         expect(output).toContain("const __sqtsParams1 = [params.id];");
         expect(output).toContain(
             'const __sqtsResult1 = await __sqtsExecute(__sqtsQuery1, __sqtsParams1, { queryName: "UpsertAndFetch", sourceFile: "queries/upsertAndFetch.sqts", statementIndex: 1 });',
         );
-        expect(output).toContain("const __sqtsRows = (__sqtsResult1.rows ?? []) as Record<string, unknown>[];");
+        expect(output).toContain(
+            "const __sqtsRows = (__sqtsResult1.rows ?? []) as Record<string, unknown>[];",
+        );
     });
 
     it("throws when projection output keys collide", async () => {
@@ -166,7 +180,7 @@ CREATE TABLE users (
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
@@ -178,7 +192,11 @@ CREATE TABLE posts (
         ]);
 
         await expectCompilerErrorCode(
-            compile("queries/collision.sqts", createCompileContext(schema, true), cwd),
+            compile(
+                "queries/collision.sqts",
+                createCompileContext(schema, true),
+                cwd,
+            ),
             CompilerErrorCode.DuplicateProjectionOutputKey,
         );
     });
@@ -190,7 +208,7 @@ CREATE TABLE posts (
         await writeFile(sqtsPath, "CountUsers => SELECT COUNT(*) FROM users;");
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
@@ -198,7 +216,11 @@ CREATE TABLE users (
         ]);
 
         await expectCompilerErrorCode(
-            compile("queries/count.sqts", createCompileContext(schema, true), cwd),
+            compile(
+                "queries/count.sqts",
+                createCompileContext(schema, true),
+                cwd,
+            ),
             CompilerErrorCode.MissingProjectionAlias,
         );
     });
@@ -210,7 +232,7 @@ CREATE TABLE users (
         await writeFile(sqtsPath, "GetGhost => SELECT * FROM ghosts;");
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
@@ -218,7 +240,11 @@ CREATE TABLE users (
         ]);
 
         await expectCompilerErrorCode(
-            compile("queries/getGhost.sqts", createCompileContext(schema, true), cwd),
+            compile(
+                "queries/getGhost.sqts",
+                createCompileContext(schema, true),
+                cwd,
+            ),
             CompilerErrorCode.InvalidSelectProjectionReference,
         );
     });
@@ -239,7 +265,7 @@ AND note = '$id'
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   note TEXT
@@ -274,13 +300,13 @@ UpdateUser => UPDATE users SET email = $email WHERE id = $id;
         );
 
         const schema = buildSqliteSchema([
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL
 );
             `),
-            parseSqlite(`
+            parseSql(`
 CREATE TABLE posts (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL,

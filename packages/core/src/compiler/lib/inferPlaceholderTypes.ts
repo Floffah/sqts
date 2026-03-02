@@ -2,9 +2,9 @@ import type { ExpressionNode, SelectStatement } from "@sqts/sql";
 
 import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
 import type { CompileContext } from "@/compiler/getCompileContext.ts";
-import { resolveIdentifierType } from "@/compiler/identifier-resolution.ts";
 import { buildTableAliasMap } from "@/compiler/lib/buildTableAliasMap.ts";
 import { parseFirstSelectFromOperation } from "@/compiler/lib/parseFirstSelectFromOperation.ts";
+import { resolveIdentifierType } from "@/compiler/lib/resolveIdentifierType.ts";
 import { stripPlaceholderPrefix } from "@/compiler/lib/stripPlaceholderPrefix.ts";
 import type { SqtsOperation } from "@/parser";
 

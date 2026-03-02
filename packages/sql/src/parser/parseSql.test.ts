@@ -3,8 +3,8 @@ import { describe, expect, it } from "bun:test";
 import {
     ParseError,
     ParseErrorCode,
+    parseSql,
     ReferentialAction,
-    parseSqlite,
     SqliteAffinity,
 } from "@/index.ts";
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS main.users (
 ) STRICT;
         `;
 
-        const program = parseSqlite(sql);
+        const program = parseSql(sql);
         expect(program.dialect).toBe("sqlite");
         expect(program.statements).toHaveLength(1);
 
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS main.users (
 ) STRICT;
         `;
 
-        const program = parseSqlite(sql);
+        const program = parseSql(sql);
         expect(program).toMatchSnapshot();
     });
 
@@ -111,7 +111,7 @@ ORDER BY u.created_at DESC
 LIMIT 10 OFFSET 5;
         `;
 
-        const program = parseSqlite(sql);
+        const program = parseSql(sql);
         expect(program.statements).toHaveLength(1);
 
         const statement = program.statements[0]!;
@@ -132,7 +132,7 @@ LIMIT 10 OFFSET 5;
     });
 
     it("parses SELECT without FROM", () => {
-        const program = parseSqlite("SELECT 1 AS one;");
+        const program = parseSql("SELECT 1 AS one;");
         const statement = program.statements[0]!;
 
         expect(statement.kind).toBe("select");
@@ -145,7 +145,7 @@ LIMIT 10 OFFSET 5;
     });
 
     it("parses DISTINCT and mixed alias styles", () => {
-        const program = parseSqlite(
+        const program = parseSql(
             "SELECT DISTINCT u.id uid, u.email AS email_alias FROM users u;",
         );
 
@@ -168,7 +168,7 @@ INNER JOIN posts p ON p.user_id = u.id
 LEFT JOIN comments c ON c.post_id = p.id;
         `;
 
-        const statement = parseSqlite(sql).statements[0]!;
+        const statement = parseSql(sql).statements[0]!;
         expect(statement.kind).toBe("select");
         if (statement.kind !== "select") {
             throw new Error("Expected select statement");
@@ -187,7 +187,7 @@ LEFT JOIN posts p ON p.user_id = u.id
 WHERE u.id = $id OR p.author_id = $id;
         `;
 
-        const statement = parseSqlite(sql).statements[0]!;
+        const statement = parseSql(sql).statements[0]!;
         expect(statement.kind).toBe("select");
         if (statement.kind !== "select") {
             throw new Error("Expected select statement");
@@ -202,12 +202,12 @@ WHERE u.id = $id OR p.author_id = $id;
     });
 
     it("throws on unsupported SELECT clauses", () => {
-        expect(() => parseSqlite("SELECT id FROM users GROUP BY id;")).toThrow(
+        expect(() => parseSql("SELECT id FROM users GROUP BY id;")).toThrow(
             ParseError,
         );
 
         try {
-            parseSqlite("SELECT id FROM users GROUP BY id;");
+            parseSql("SELECT id FROM users GROUP BY id;");
         } catch (error) {
             const parseError = error as ParseError;
             expect(parseError.code).toBe(
@@ -216,19 +216,19 @@ WHERE u.id = $id OR p.author_id = $id;
         }
 
         expect(() =>
-            parseSqlite("WITH cte AS (SELECT 1) SELECT * FROM cte;"),
+            parseSql("WITH cte AS (SELECT 1) SELECT * FROM cte;"),
         ).toThrow(ParseError);
     });
 
     it("throws on unsupported join types", () => {
         expect(() =>
-            parseSqlite(
+            parseSql(
                 "SELECT u.id FROM users u RIGHT JOIN posts p ON p.user_id = u.id;",
             ),
         ).toThrow(ParseError);
 
         try {
-            parseSqlite(
+            parseSql(
                 "SELECT u.id FROM users u RIGHT JOIN posts p ON p.user_id = u.id;",
             );
         } catch (error) {
@@ -245,7 +245,7 @@ SELECT id FROM users;
 UPDATE users SET id = 1;
         `;
 
-        const program = parseSqlite(sql);
+        const program = parseSql(sql);
         expect(program.statements).toHaveLength(2);
         expect(program.statements[0]?.kind).toBe("create_table");
         expect(program.statements[1]?.kind).toBe("select");
@@ -265,7 +265,7 @@ ORDER BY p.created_at DESC, u.id ASC
 LIMIT 25 OFFSET 5;
         `;
 
-        const program = parseSqlite(sql);
+        const program = parseSql(sql);
         expect(program).toMatchSnapshot();
     });
 
@@ -277,10 +277,10 @@ CREATE TABLE users (
 ;
         `;
 
-        expect(() => parseSqlite(sql)).toThrow(ParseError);
+        expect(() => parseSql(sql)).toThrow(ParseError);
 
         try {
-            parseSqlite(sql);
+            parseSql(sql);
         } catch (error) {
             const parseError = error as ParseError;
             expect(parseError.code).toBe(ParseErrorCode.UnexpectedToken);
@@ -298,10 +298,10 @@ CREATE TABLE users (
 );
         `;
 
-        expect(() => parseSqlite(sql)).toThrow(ParseError);
+        expect(() => parseSql(sql)).toThrow(ParseError);
 
         try {
-            parseSqlite(sql);
+            parseSql(sql);
         } catch (error) {
             const parseError = error as ParseError;
             expect(parseError.code).toBe(ParseErrorCode.DuplicateColumnName);
