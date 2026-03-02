@@ -1,16 +1,15 @@
-import {
-    buildSqliteSchema,
-    parseSql,
-    type IdentifierNode,
-    type SelectStatement,
-} from "@sqts/sql";
+import type { IdentifierNode } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 
-import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
-import type { CompileContext } from "@/compiler/getCompileContext.ts";
+import { CompilerErrorCode } from "@/compiler/errors.ts";
 import { buildTableAliasMap } from "@/compiler/lib/buildTableAliasMap.ts";
 import { resolveIdentifierType } from "@/compiler/lib/resolveIdentifierType.ts";
-import { parseDocument, type SqtsOperation } from "@/parser";
+import {
+    createTestCompileContextFromSql,
+    expectCompilerErrorCode,
+    parseSingleOperation,
+    parseSqlExpectSelect,
+} from "@/tests/utils.ts";
 
 const DUMMY_POSITION = {
     offset: 0,
@@ -25,14 +24,14 @@ const DUMMY_SPAN = {
 
 describe("resolveIdentifierType", () => {
     it("resolves aliased and schema-qualified identifiers", () => {
-        const operation = parseOperation(
+        const operation = parseSingleOperation(
             "GetUser => SELECT * FROM users u INNER JOIN posts p ON p.user_id = u.id WHERE u.id = $id;",
         );
-        const select = parseSelect(
+        const select = parseSqlExpectSelect(
             "SELECT * FROM users u INNER JOIN posts p ON p.user_id = u.id WHERE u.id = $id;",
         );
         const aliasMap = buildTableAliasMap(select);
-        const ctx = createCompileContext(`
+        const ctx = createTestCompileContextFromSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL
@@ -69,19 +68,21 @@ CREATE TABLE posts (
         expect(qualifiedType).toBe("string");
     });
 
-    it("throws for unresolved aliases, tables, and columns", () => {
-        const operation = parseOperation(
+    it("throws for unresolved aliases, tables, and columns", async () => {
+        const operation = parseSingleOperation(
             "GetUser => SELECT * FROM users u WHERE u.id = $id;",
         );
-        const select = parseSelect("SELECT * FROM users u WHERE u.id = $id;");
+        const select = parseSqlExpectSelect(
+            "SELECT * FROM users u WHERE u.id = $id;",
+        );
         const aliasMap = buildTableAliasMap(select);
-        const ctx = createCompileContext(`
+        const ctx = createTestCompileContextFromSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
         `);
 
-        expectCompilerErrorCode(
+        await expectCompilerErrorCode(
             () =>
                 resolveIdentifierType(
                     [createIdentifier("x"), createIdentifier("id")],
@@ -94,7 +95,7 @@ CREATE TABLE users (
             CompilerErrorCode.UnresolvedTableAlias,
         );
 
-        expectCompilerErrorCode(
+        await expectCompilerErrorCode(
             () =>
                 resolveIdentifierType(
                     [
@@ -111,7 +112,7 @@ CREATE TABLE users (
             CompilerErrorCode.UnresolvedTable,
         );
 
-        expectCompilerErrorCode(
+        await expectCompilerErrorCode(
             () =>
                 resolveIdentifierType(
                     [createIdentifier("u"), createIdentifier("missing")],
@@ -125,15 +126,15 @@ CREATE TABLE users (
         );
     });
 
-    it("throws for ambiguous unqualified identifiers", () => {
-        const operation = parseOperation(
+    it("throws for ambiguous unqualified identifiers", async () => {
+        const operation = parseSingleOperation(
             "GetUser => SELECT * FROM users u INNER JOIN posts p ON p.user_id = u.id WHERE id = $id;",
         );
-        const select = parseSelect(
+        const select = parseSqlExpectSelect(
             "SELECT * FROM users u INNER JOIN posts p ON p.user_id = u.id WHERE id = $id;",
         );
         const aliasMap = buildTableAliasMap(select);
-        const ctx = createCompileContext(`
+        const ctx = createTestCompileContextFromSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
@@ -143,7 +144,7 @@ CREATE TABLE posts (
 );
         `);
 
-        expectCompilerErrorCode(
+        await expectCompilerErrorCode(
             () =>
                 resolveIdentifierType(
                     [createIdentifier("id")],
@@ -158,18 +159,6 @@ CREATE TABLE posts (
     });
 });
 
-function parseOperation(input: string): SqtsOperation {
-    return parseDocument(input).operations[0]!;
-}
-
-function parseSelect(input: string): SelectStatement {
-    const statement = parseSql(input).statements[0];
-    if (!statement || statement.kind !== "select") {
-        throw new Error("Expected select statement");
-    }
-    return statement;
-}
-
 function createIdentifier(value: string): IdentifierNode {
     return {
         normalized: value,
@@ -177,35 +166,4 @@ function createIdentifier(value: string): IdentifierNode {
         quoted: false,
         span: DUMMY_SPAN,
     };
-}
-
-function createCompileContext(schemaSql: string): CompileContext {
-    return {
-        config: {
-            executor: {
-                module: "@sqts/core/adapters/bun-sqlite",
-            },
-            compiler: {
-                schemaDir: "migrations",
-                outDir: ".sqts",
-                modelTypes: true,
-            },
-        },
-        schema: buildSqliteSchema([parseSql(schemaSql)]),
-    };
-}
-
-function expectCompilerErrorCode(
-    run: () => unknown,
-    code: CompilerErrorCode,
-): void {
-    try {
-        run();
-        throw new Error(`Expected CompilerError(${code})`);
-    } catch (error) {
-        if (!(error instanceof CompilerError)) {
-            throw error;
-        }
-        expect(error.code).toBe(code);
-    }
 }

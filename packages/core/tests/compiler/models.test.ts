@@ -5,7 +5,8 @@ import { buildSqliteSchema, parseSql } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 import { Project } from "ts-morph";
 
-import { compileModelTypes } from "./models.ts";
+import { compileModelTypes } from "@/compiler/models.ts";
+import { createTestCompileContext } from "@/tests/utils.ts";
 
 describe("compileModelTypes", () => {
     it("generates exported row interfaces for main-schema tables", async () => {
@@ -106,7 +107,11 @@ CREATE TABLE metrics (
         ]);
 
         await expect(
-            compileModelTypes(project, outdir, createCompileContext(schema)),
+            compileModelTypes(
+                project,
+                outdir,
+                createTestCompileContext(schema),
+            ),
         ).rejects.toThrow('supports only the "main" schema');
     });
 
@@ -119,7 +124,11 @@ CREATE TABLE metrics (
         ]);
 
         await expect(
-            compileModelTypes(project, outdir, createCompileContext(schema)),
+            compileModelTypes(
+                project,
+                outdir,
+                createTestCompileContext(schema),
+            ),
         ).rejects.toThrow("Model type name collision");
     });
 
@@ -133,7 +142,11 @@ CREATE TABLE metrics (
         schema.tableOrder.push("main.missing_table");
 
         await expect(
-            compileModelTypes(project, outdir, createCompileContext(schema)),
+            compileModelTypes(
+                project,
+                outdir,
+                createTestCompileContext(schema),
+            ),
         ).rejects.toThrow("Schema invariant violation");
     });
 
@@ -170,7 +183,7 @@ async function compileAndReadModels(sqlPrograms: string[]): Promise<{
     const project = new Project({});
     const outdir = await mkdtemp(join(tmpdir(), "sqts-core-models-"));
 
-    await compileModelTypes(project, outdir, createCompileContext(schema));
+    await compileModelTypes(project, outdir, createTestCompileContext(schema));
 
     const outputPath = resolve(outdir, "types.ts");
     const outputFile = project.getSourceFile(outputPath);
@@ -183,23 +196,5 @@ async function compileAndReadModels(sqlPrograms: string[]): Promise<{
     return {
         fileText: outputFile.getFullText(),
         outputPath,
-    };
-}
-
-function createCompileContext(
-    schema: ReturnType<typeof buildSqliteSchema>,
-): Parameters<typeof compileModelTypes>[2] {
-    return {
-        schema,
-        config: {
-            executor: {
-                module: "@sqts/core/adapters/bun-sqlite",
-            },
-            compiler: {
-                schemaDir: "migrations",
-                outDir: ".sqts",
-                modelTypes: true,
-            },
-        },
     };
 }

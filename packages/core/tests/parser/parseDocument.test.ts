@@ -5,7 +5,7 @@ import {
     SqtsOperationBodyKind,
     SqtsParseError,
     SqtsParseErrorCode,
-} from "./index.ts";
+} from "@/parser";
 
 describe("parseDocument", () => {
     it("parses a single statement operation", () => {

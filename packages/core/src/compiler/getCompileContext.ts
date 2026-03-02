@@ -1,6 +1,7 @@
-import { readdir, readFile } from "fs/promises";
+import { readdir, readFile, stat } from "fs/promises";
 import { resolve } from "path";
 import { buildSqliteSchema, parseSql, type SqlProgram } from "@sqts/sql";
+import { getCompilerOptionsFromTsConfig } from "ts-morph";
 
 import { getConfig } from "@/lib/getConfig.ts";
 
@@ -31,9 +32,17 @@ export async function getCompileContext(cwd = process.cwd()) {
 
     const schema = buildSqliteSchema(programs);
 
+    const tsconfigPath = resolve(cwd, "tsconfig.json");
+    const tsconfigStat = await stat(tsconfigPath).catch(() => null);
+    const tsconfigExists = tsconfigStat?.isFile() ?? false;
+    const tsCompilerOptions = tsconfigExists
+        ? getCompilerOptionsFromTsConfig(tsconfigPath).options
+        : undefined;
+
     return {
         config,
         schema,
+        tsCompilerOptions,
     };
 }
 

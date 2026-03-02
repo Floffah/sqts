@@ -16,6 +16,7 @@
         "check": "bun run lint && bun run build && bun run test"
     },
     "devDependencies": {
+        "@arethetypeswrong/core": "^0.18.2",
         "@changesets/cli": "^2.29.8",
         "@eslint/compat": "^2.0.2",
         "@eslint/js": "^10.0.1",
@@ -23,6 +24,7 @@
         "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.8",
         "prettier": "^3.8.1",
+        "publint": "^0.3.18",
         "turbo": "^2.8.12",
         "typescript-eslint": "^8.56.1"
     },

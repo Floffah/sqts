@@ -5,7 +5,11 @@ import { buildSqliteSchema, parseSql } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 
 import { compile } from "@/compiler/compile.ts";
-import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
+import { CompilerErrorCode } from "@/compiler/errors.ts";
+import {
+    createTestCompileContext,
+    expectCompilerErrorCode,
+} from "@/tests/utils.ts";
 
 describe("compile", () => {
     it("emits SELECT execution body with model return type import when modelTypes is enabled", async () => {
@@ -28,7 +32,7 @@ CREATE TABLE users (
 
         const output = await compile(
             "queries/getUser.sqts",
-            createCompileContext(schema, true),
+            createTestCompileContext(schema, { modelTypes: true }),
             cwd,
         );
 
@@ -73,7 +77,7 @@ CREATE TABLE posts (
 
         const output = await compile(
             "queries/find.sqts",
-            createCompileContext(schema, false),
+            createTestCompileContext(schema, { modelTypes: false }),
             cwd,
         );
 
@@ -102,7 +106,7 @@ CREATE TABLE users (
 
         const output = await compile(
             "queries/updateUser.sqts",
-            createCompileContext(schema, true),
+            createTestCompileContext(schema, { modelTypes: true }),
             cwd,
         );
 
@@ -141,7 +145,7 @@ CREATE TABLE users (
 
         const output = await compile(
             "queries/upsertAndFetch.sqts",
-            createCompileContext(schema, true),
+            createTestCompileContext(schema, { modelTypes: true }),
             cwd,
         );
 
@@ -194,7 +198,7 @@ CREATE TABLE posts (
         await expectCompilerErrorCode(
             compile(
                 "queries/collision.sqts",
-                createCompileContext(schema, true),
+                createTestCompileContext(schema, { modelTypes: true }),
                 cwd,
             ),
             CompilerErrorCode.DuplicateProjectionOutputKey,
@@ -218,7 +222,7 @@ CREATE TABLE users (
         await expectCompilerErrorCode(
             compile(
                 "queries/count.sqts",
-                createCompileContext(schema, true),
+                createTestCompileContext(schema, { modelTypes: true }),
                 cwd,
             ),
             CompilerErrorCode.MissingProjectionAlias,
@@ -242,7 +246,7 @@ CREATE TABLE users (
         await expectCompilerErrorCode(
             compile(
                 "queries/getGhost.sqts",
-                createCompileContext(schema, true),
+                createTestCompileContext(schema, { modelTypes: true }),
                 cwd,
             ),
             CompilerErrorCode.InvalidSelectProjectionReference,
@@ -275,7 +279,7 @@ CREATE TABLE users (
 
         const output = await compile(
             "queries/comments.sqts",
-            createCompileContext(schema, false),
+            createTestCompileContext(schema, { modelTypes: false }),
             cwd,
         );
 
@@ -317,44 +321,10 @@ CREATE TABLE posts (
 
         const output = await compile(
             "queries/mixed.sqts",
-            createCompileContext(schema, true),
+            createTestCompileContext(schema, { modelTypes: true }),
             cwd,
         );
 
         expect(output).toMatchSnapshot();
     });
 });
-
-function createCompileContext(
-    schema: ReturnType<typeof buildSqliteSchema>,
-    modelTypes: boolean,
-): Parameters<typeof compile>[1] {
-    return {
-        schema,
-        config: {
-            executor: {
-                module: "@sqts/core/adapters/bun-sqlite",
-            },
-            compiler: {
-                schemaDir: "migrations",
-                outDir: ".sqts",
-                modelTypes,
-            },
-        },
-    };
-}
-
-async function expectCompilerErrorCode(
-    run: Promise<unknown>,
-    code: CompilerErrorCode,
-): Promise<void> {
-    try {
-        await run;
-        throw new Error(`Expected CompilerError(${code})`);
-    } catch (error) {
-        if (!(error instanceof CompilerError)) {
-            throw error;
-        }
-        expect(error.code).toBe(code);
-    }
-}

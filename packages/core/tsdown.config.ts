@@ -18,4 +18,6 @@ export default defineConfig({
         neverBundle: ["bun:sqlite"],
         alwaysBundle: ["@sqts/sql"],
     },
+    publint: true,
+    attw: true,
 });
