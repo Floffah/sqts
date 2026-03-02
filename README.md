@@ -39,7 +39,7 @@ The configured module must export a named async `execute(query, params, meta?)` 
 ```sql
 -- migrations/001-create-users.sql
 
-CREATE TABlE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS users (
      id SERIAL PRIMARY KEY,
      name TEXT NOT NULL,
      email TEXT NOT NULL UNIQUE
@@ -52,7 +52,7 @@ CREATE TABlE IF NOT EXISTS users (
 GetUser => SELECT * FROM users WHERE id = $id;
 ```
 
-With this, in your configured output folder (default is `./sqts`) you'll get generated model types and this function signature:
+With this, in your configured output folder (default is `.sqts`) you'll get generated model types and this function signature:
 ```ts
 export async function GetUser(params: { id: number; }): Promise<User[]>;
 ```
@@ -64,7 +64,7 @@ Create an executor file somewhere in your project:
 ```ts
 // src/db.ts
 import { executorWithBunSqlite } from "@sqts/core/adapters/bun-sqlite";
-import Database from "bun:sqlite";
+import { Database } from "bun:sqlite";
 
 const db = new Database(":memory:"); // or path to your database file
 

@@ -1,7 +1,7 @@
 import { readdir, readFile } from "fs/promises";
 import { resolve } from "path";
 import { executorWithBunSqlite } from "@sqts/core/adapters/bun-sqlite";
-import Database from "bun:sqlite";
+import { Database } from "bun:sqlite";
 
 import { GetUser } from "../.sqts";
 

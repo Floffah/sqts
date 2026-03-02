@@ -1,5 +1,5 @@
 // queries/user.sqts
-import { execute as __sqtsExecute } from "@/";
+import { execute as __sqtsExecute } from "@/index";
 import type { User } from "./types";
 
 export async function GetUser(params: { id: number; }): Promise<User[]> {

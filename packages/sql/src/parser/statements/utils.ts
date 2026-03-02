@@ -103,7 +103,7 @@ export function splitSqlStatements(source: string): ScriptStatement[] {
         if (char === ";") {
             const end = i + 1;
             const text = source.slice(start, end);
-            if (source.trim().length > 0) {
+            if (text.trim().length > 0) {
                 statements.push({
                     text,
                     start,
@@ -117,7 +117,7 @@ export function splitSqlStatements(source: string): ScriptStatement[] {
 
     if (start < source.length) {
         const text = source.slice(start, source.length);
-        if (source.trim().length > 0) {
+        if (text.trim().length > 0) {
             statements.push({
                 text,
                 start,

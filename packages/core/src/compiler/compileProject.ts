@@ -12,7 +12,7 @@ export async function compileProject(cwd = process.cwd()) {
 
     const sqtsFiles = await glob("**/*.sqts", {
         cwd,
-        ignore: ["dist", "node_modules"],
+        ignore: ["**/dist/**", "**/node_modules/**"],
     });
 
     const outputFiles: Record<string, string> = {};

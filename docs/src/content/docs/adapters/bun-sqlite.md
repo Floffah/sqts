@@ -10,7 +10,7 @@ Create a file somewhere to contain the executor function, for example `src/db.ts
 ```ts
 // src/db.ts
 import { executorWithBunSqlite } from "@sqts/core/adapters/bun-sqlite";
-import Database from "bun:sqlite";
+import { Database } from "bun:sqlite";
 
 const db = new Database(":memory:"); // or path to your database file
 

@@ -19,7 +19,7 @@ With the migration:
 ```sql
 -- migrations/001-create-users.sql
 
-CREATE TABlE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE
