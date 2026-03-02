@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 
-import { compileProject } from "@/compiler";
+import { compileProject, watchAndCompileProject } from "@/compiler";
 
 import packageJson from "../package.json";
 
@@ -16,8 +16,16 @@ program
     .command("compile")
     .alias("c")
     .description("Compile SQL files to TypeScript")
-    .action(async () => {
-        await compileProject();
+    .option("--watch", "Watch for changes and recompile automatically")
+    .action(async function () {
+        const opts = this.opts<{ watch?: boolean }>();
+
+        if (opts.watch) {
+            await watchAndCompileProject();
+        } else {
+            await compileProject();
+            console.log("[SQTS] Compilation complete.");
+        }
     });
 
 program.parseAsync();

@@ -1,14 +1,96 @@
-import { access } from "fs/promises";
 import { resolve } from "path";
-import { glob } from "glob";
-import { getCompilerOptionsFromTsConfig, Project } from "ts-morph";
+import { debounce } from "@tanstack/pacer";
+import { watch } from "chokidar";
+import { glob } from "tinyglobby";
+import { Project } from "ts-morph";
 
 import { compile } from "@/compiler/compile.ts";
-import { getCompileContext } from "@/compiler/getCompileContext.ts";
+import {
+    getCompileContext,
+    type CompileContext,
+} from "@/compiler/getCompileContext.ts";
 import { compileModelTypes } from "@/compiler/models.ts";
 
-export async function compileProject(cwd = process.cwd()) {
-    const ctx = await getCompileContext(cwd);
+interface CompileOptions {
+    ctx?: CompileContext;
+    cwd?: string;
+    inMemory?: boolean;
+}
+
+export async function watchAndCompileProject({
+    ctx: propsCtx,
+    cwd = process.cwd(),
+    inMemory,
+}: CompileOptions = {}) {
+    let ctx = propsCtx ?? (await getCompileContext(cwd));
+
+    console.log("[SQTS] Compiling project...");
+    await compileProject({ ctx, cwd, inMemory });
+
+    console.log("[SQTS] Compilation complete. Watching for changes...");
+    const watcher = watch(".", {
+        cwd,
+        // awaitWriteFinish: true,
+        depth: 10,
+        ignoreInitial: true,
+        alwaysStat: true,
+
+        ignored: (path, stats) => {
+            if (
+                stats?.isFile() &&
+                !path.endsWith(".sqts") &&
+                !path.endsWith(".sql")
+            ) {
+                return true;
+            }
+
+            return path.includes("node_modules") || path.includes("dist");
+        },
+    });
+
+    const reactToChange = debounce(
+        async (path: string) => {
+            if (path.endsWith(".sql")) {
+                console.log(
+                    `[SQTS] Detected change in ${path}. Updating schema...`,
+                );
+                try {
+                    ctx = await getCompileContext(cwd);
+                    console.log(`[SQTS] Schema updated successfully.`);
+                } catch (error) {
+                    console.error("[SQTS] Error updating schema:", error);
+                    return;
+                }
+            }
+
+            console.log(`[SQTS] Detected change in ${path}. Recompiling...`);
+            try {
+                const now = new Date();
+                await compileProject({ ctx, cwd, inMemory });
+                const duration = new Date().getTime() - now.getTime();
+                console.log(`[SQTS] Recompilation complete in ${duration}ms.`);
+            } catch (error) {
+                console.error("[SQTS] Error during recompilation:", error);
+            }
+        },
+        {
+            wait: 300,
+        },
+    );
+
+    watcher.on("add", reactToChange);
+    watcher.on("change", reactToChange);
+    watcher.on("unlink", reactToChange);
+
+    return watcher;
+}
+
+export async function compileProject({
+    ctx: propsCtx,
+    cwd = process.cwd(),
+    inMemory,
+}: CompileOptions = {}) {
+    const ctx = propsCtx ?? (await getCompileContext(cwd));
 
     const sqtsFiles = await glob("**/*.sqts", {
         cwd,
@@ -21,16 +103,9 @@ export async function compileProject(cwd = process.cwd()) {
         outputFiles[file] = await compile(file, ctx, cwd);
     }
 
-    const tsconfigPath = resolve(cwd, "tsconfig.json");
-    const tsconfigExists = await access(tsconfigPath)
-        .then(() => true)
-        .catch(() => false);
-    const compilerOptions = tsconfigExists
-        ? getCompilerOptionsFromTsConfig(tsconfigPath).options
-        : undefined;
-
     const tsProj = new Project({
-        compilerOptions,
+        compilerOptions: ctx.tsCompilerOptions,
+        useInMemoryFileSystem: inMemory,
     });
 
     if (!ctx.config.compiler?.outDir) {
@@ -59,4 +134,6 @@ export async function compileProject(cwd = process.cwd()) {
     finalOutputFile.formatText();
 
     await tsProj.save();
+
+    return tsProj;
 }

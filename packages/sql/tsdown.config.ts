@@ -12,4 +12,6 @@ export default defineConfig({
     deps: {
         neverBundle: ["bun:sqlite"],
     },
+    publint: true,
+    attw: true,
 });

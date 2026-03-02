@@ -1,20 +1,23 @@
-import { buildSqliteSchema, parseSql, type SelectStatement } from "@sqts/sql";
 import { describe, expect, it } from "bun:test";
 
-import { CompilerError, CompilerErrorCode } from "@/compiler/errors.ts";
-import type { CompileContext } from "@/compiler/getCompileContext.ts";
+import { CompilerErrorCode } from "@/compiler/errors.ts";
 import { deriveSelectProjection } from "@/compiler/lib/deriveSelectProjection.ts";
-import { parseDocument, type SqtsOperation } from "@/parser";
+import {
+    createTestCompileContextFromSql,
+    expectCompilerErrorCode,
+    parseSingleOperation,
+    parseSqlExpectSelect,
+} from "@/tests/utils.ts";
 
 describe("deriveSelectProjection", () => {
     it("derives projection fields from aliases, placeholders, and wildcards", () => {
-        const operation = parseOperation(
+        const operation = parseSingleOperation(
             "GetUsers => SELECT u.id AS user_id, $id AS request_id, u.* FROM users u WHERE u.id = $id;",
         );
-        const select = parseSelect(
+        const select = parseSqlExpectSelect(
             "SELECT u.id AS user_id, $id AS request_id, u.* FROM users u WHERE u.id = $id;",
         );
-        const ctx = createCompileContext(`
+        const ctx = createTestCompileContextFromSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL,
@@ -46,14 +49,14 @@ CREATE TABLE users (
         expect(projection.rowTypeLiteral).toContain("bio: string | null;");
     });
 
-    it("throws for duplicate projection output keys", () => {
-        const operation = parseOperation(
+    it("throws for duplicate projection output keys", async () => {
+        const operation = parseSingleOperation(
             "Collision => SELECT users.id, posts.id FROM users INNER JOIN posts ON posts.user_id = users.id;",
         );
-        const select = parseSelect(
+        const select = parseSqlExpectSelect(
             "SELECT users.id, posts.id FROM users INNER JOIN posts ON posts.user_id = users.id;",
         );
-        const ctx = createCompileContext(`
+        const ctx = createTestCompileContextFromSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
@@ -63,7 +66,7 @@ CREATE TABLE posts (
 );
         `);
 
-        expectCompilerErrorCode(
+        await expectCompilerErrorCode(
             () =>
                 deriveSelectProjection({
                     select,
@@ -76,18 +79,18 @@ CREATE TABLE posts (
         );
     });
 
-    it("throws for complex unaliased projection expressions", () => {
-        const operation = parseOperation(
+    it("throws for complex unaliased projection expressions", async () => {
+        const operation = parseSingleOperation(
             "CountUsers => SELECT COUNT(*) FROM users;",
         );
-        const select = parseSelect("SELECT COUNT(*) FROM users;");
-        const ctx = createCompileContext(`
+        const select = parseSqlExpectSelect("SELECT COUNT(*) FROM users;");
+        const ctx = createTestCompileContextFromSql(`
 CREATE TABLE users (
   id INTEGER PRIMARY KEY
 );
         `);
 
-        expectCompilerErrorCode(
+        await expectCompilerErrorCode(
             () =>
                 deriveSelectProjection({
                     select,
@@ -100,46 +103,3 @@ CREATE TABLE users (
         );
     });
 });
-
-function parseOperation(input: string): SqtsOperation {
-    return parseDocument(input).operations[0]!;
-}
-
-function parseSelect(input: string): SelectStatement {
-    const statement = parseSql(input).statements[0];
-    if (!statement || statement.kind !== "select") {
-        throw new Error("Expected select statement");
-    }
-    return statement;
-}
-
-function createCompileContext(schemaSql: string): CompileContext {
-    return {
-        config: {
-            executor: {
-                module: "@sqts/core/adapters/bun-sqlite",
-            },
-            compiler: {
-                schemaDir: "migrations",
-                outDir: ".sqts",
-                modelTypes: true,
-            },
-        },
-        schema: buildSqliteSchema([parseSql(schemaSql)]),
-    };
-}
-
-function expectCompilerErrorCode(
-    run: () => unknown,
-    code: CompilerErrorCode,
-): void {
-    try {
-        run();
-        throw new Error(`Expected CompilerError(${code})`);
-    } catch (error) {
-        if (!(error instanceof CompilerError)) {
-            throw error;
-        }
-        expect(error.code).toBe(code);
-    }
-}
