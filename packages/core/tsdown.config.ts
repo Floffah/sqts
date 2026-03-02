@@ -12,8 +12,6 @@ export default defineConfig({
     platform: "node",
     sourcemap: true,
     exports: {
-        all: true,
-        devExports: "development",
         exclude: ["cli", /^[a-zA-Z0-9]+-[a-zA-Z0-9_-]{8}$/],
     },
     deps: {

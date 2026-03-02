@@ -1,6 +1,6 @@
 {
     "name": "@sqts/core",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Type-safe SQL queries for TypeScript",
     "repository": {
         "type": "git",
@@ -55,21 +55,34 @@
     "types": "./dist/index.d.cts",
     "exports": {
         ".": {
-            "development": "./src/index.ts",
             "import": "./dist/index.mjs",
             "require": "./dist/index.cjs"
         },
         "./adapters/bun-sqlite": {
-            "development": "./src/adapters/bun-sqlite.ts",
             "import": "./dist/adapters/bun-sqlite.mjs",
             "require": "./dist/adapters/bun-sqlite.cjs"
         },
         "./config": {
-            "development": "./src/config.ts",
             "import": "./dist/config.mjs",
             "require": "./dist/config.cjs"
         },
-        "./*": "./*"
+        "./package.json": "./package.json"
+    },
+    "typesVersions": {
+        "*": {
+            ".": [
+                "dist/index.d.mts"
+            ],
+            "adapters/bun-sqlite": [
+                "dist/adapters/bun-sqlite.d.mts"
+            ],
+            "config": [
+                "dist/config.d.mts"
+            ],
+            "*": [
+                "dist/*"
+            ]
+        }
     },
     "publishConfig": {
         "provenance": true,

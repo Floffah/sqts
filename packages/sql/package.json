@@ -1,7 +1,6 @@
 {
     "name": "@sqts/sql",
-    "version": "0.0.1",
-    "private": true,
+    "version": "0.0.2",
     "description": "SQL utilities for sqts",
     "repository": {
         "type": "git",
@@ -34,11 +33,10 @@
     "types": "./dist/index.d.cts",
     "exports": {
         ".": {
-            "development": "./src/index.ts",
             "import": "./dist/index.mjs",
             "require": "./dist/index.cjs"
         },
-        "./*": "./*"
+        "./package.json": "./package.json"
     },
     "publishConfig": {
         "provenance": true,
