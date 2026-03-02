@@ -5,6 +5,6 @@
     "fixed": [["@sqts/core", "@sqts/sql"]],
     "linked": [],
     "access": "public",
-    "baseBranch": "beta",
+    "baseBranch": "main",
     "updateInternalDependencies": "patch"
 }

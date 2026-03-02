@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - beta # TODO: change to beta when we are ready to release first version
+      - main # TODO: change to beta when we are ready to release first version
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
