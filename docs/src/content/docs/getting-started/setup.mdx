@@ -43,11 +43,6 @@ Want to use this with your favourite bundler? See [Bundlers and Runtimes](./bund
     export default defineConfig({
         executor: {
             module: "@sqts/core/adapters/bun-sqlite", // or path/to/my/adapter.ts
-        },
-        output: {
-            mode: "compile",
-            inline: true,
-            ext: "ts" // verbatim output is .ts, use "js" for js transpilation
         }
     });
     ```
@@ -57,11 +52,9 @@ Want to use this with your favourite bundler? See [Bundlers and Runtimes](./bund
 
 If you need another database adapter, you can use the list of built-in ones (see sidebar), or write your own. See [Custom Adapters](../adapters/custom) for more details.
 
-## Non-inline mode
+## Disable model types
 
-By default, the compiler emits generated files next to each `.sqts` file, using the configured extension. SQTS also supports compiling into a dedicated directory.
-
-SQTS is still in early beta. Non-inline output may require import-path adjustments depending on your project layout.
+By default, the compiler emits a types file for your models based on your migrations. If you don't want this, SQTS can fall back on inline types per operation:
 
 ```ts
 import { defineConfig } from "@sqts/core/config";
@@ -70,11 +63,8 @@ export default defineConfig({
     executor: {
         module: "@sqts/core/adapters/bun-sqlite",
     },
-    output: {
-        mode: "compile",
-        inline: false,
-        dir: "./generated-queries",
-        ext: "ts"
+    compiler: {
+        modelTypes: false
     }
 });
 ```

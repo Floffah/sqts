@@ -14,9 +14,9 @@
 
 ORMs (drizzle, prisma, etc) are often the best choice for developers wanting type-safety with their databases, but sometimes you can't use them. Maybe you can't ship the migrations due to some constraint, maybe you need a self-contained bundle or binary, maybe you just want ownership of the queries.
 
-SQTS is a way to write SQL in a type-safe way by combining Typescript and SQL similar to how JSX combines HTML and Javascript.
+SQTS is a way to keep your SQL type safe without an ORM.
 
-It allows you to create an Astro-style template with a Typescript header. You define input props, export your output shape, reference props in SQL, and get typed mapped results.
+Define your migrations or schema as normal SQL files, write your queries in .sqts files, and get type safety and autocompletion in your editor. SQTS will parse your SQL, extract the types, and generate TypeScript code that you can import and use in your application.
 
 ## Config
 
@@ -36,37 +36,52 @@ The configured module must export a named async `execute(query, params, meta?)` 
 
 ## Example
 
+```sql
+-- migrations/001-create-users.sql
+
+CREATE TABlE IF NOT EXISTS users (
+     id SERIAL PRIMARY KEY,
+     name TEXT NOT NULL,
+     email TEXT NOT NULL UNIQUE
+);
+```
+
+```sql
+-- operations.sqts
+
+GetUser => SELECT * FROM users WHERE id = $id;
+```
+
+With this, in your configured output folder (default is `./sqts`) you'll get generated model types and this function signature:
 ```ts
-import { User } from "./";
-
-const { id } = sqts.props as {
-    id: string
-}
-
-export const users: User[] = []
-
----
-
-SELECT
-    u.id AS users[].id,
-    u.email AS users[].email
-FROM users u
-WHERE u.id = $id;
+export async function GetUser(params: { id: number; }): Promise<User[]>;
 ```
 
 ## Adapter: bun:sqlite
 
-You can use the built-in adapter module:
+Create an executor file somewhere in your project:
 
 ```ts
-import { execute } from "@sqts/core/adapters/bun-sqlite";
+// src/db.ts
+import { executorWithBunSqlite } from "@sqts/core/adapters/bun-sqlite";
+import Database from "bun:sqlite";
+
+const db = new Database(":memory:"); // or path to your database file
+
+export const execute = executorWithBunSqlite(db);
 ```
 
-By default it resolves a database path from:
-- `SQTS_BUN_SQLITE_PATH`
-- `BUN_SQLITE_PATH`
-- `SQLITE_DATABASE_PATH`
-- `DATABASE_URL`
+Then point to it in your config:
+
+```ts
+import { defineConfig } from "@sqts/core/config";
+
+export default defineConfig({
+    executor: {
+        module: "@/db",
+    },
+});
+```
 
 ## Custom adapters
 

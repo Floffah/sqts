@@ -61,10 +61,6 @@ export default defineConfig({
                             label: "Configuration",
                             link: "/reference/configuration",
                         },
-                        {
-                            label: "Executor Contract",
-                            link: "/reference/executor-contract",
-                        },
                     ],
                 },
             ],

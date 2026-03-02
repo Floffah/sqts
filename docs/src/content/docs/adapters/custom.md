@@ -35,14 +35,3 @@ export default defineConfig({
 ```
 
 The module string is used as-is in generated imports, so package names and path aliases are both supported.
-
-## Why this model
-
-This keeps SQTS focused on SQL typing and transformation, while your app owns database lifecycle details.
-
-Benefits:
-
-- No runtime adapter auto-detection surprises.
-- Better tree-shaking and smaller bundles.
-- Easy integration with existing app infrastructure.
-- A stable execution contract across runtimes.

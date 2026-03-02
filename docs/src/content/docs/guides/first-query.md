@@ -14,6 +14,18 @@ A simple query might be:
 GetUser => SELECT id, email FROM users WHERE id = $id;
 ```
 
+With the migration:
+
+```sql
+-- migrations/001-create-users.sql
+
+CREATE TABlE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE
+);
+```
+
 When compiled, SQTS generates an async function that:
 
 - accepts a `params` object based on placeholders (`$id` -> `params.id`),
