@@ -15,4 +15,5 @@
 - [ ] Tests pass
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] I have added necessary documentation (if appropriate)
+- [ ] I have created a changeset (if appropriate)
 - [ ] This PR was authored and submitted by an AI agent without human review
