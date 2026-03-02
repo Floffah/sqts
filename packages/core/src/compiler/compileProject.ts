@@ -1,4 +1,5 @@
 import { resolve } from "path";
+import { debounce } from "@tanstack/pacer";
 import { watch } from "chokidar";
 import { glob } from "tinyglobby";
 import { Project } from "ts-morph";
@@ -19,7 +20,7 @@ export async function watchAndCompileProject({
     ctx: propsCtx,
     cwd = process.cwd(),
 }: CompileOptions = {}) {
-    const ctx = propsCtx ?? (await getCompileContext(cwd));
+    let ctx = propsCtx ?? (await getCompileContext(cwd));
 
     console.log("[SQTS] Compiling project...");
     await compileProject({ ctx, cwd });
@@ -29,6 +30,8 @@ export async function watchAndCompileProject({
         cwd,
         // awaitWriteFinish: true,
         depth: 10,
+        ignoreInitial: true,
+        alwaysStat: true,
 
         ignored: (path, stats) => {
             return !!(
@@ -39,17 +42,35 @@ export async function watchAndCompileProject({
         },
     });
 
-    const reactToChange = async (path: string) => {
-        console.log(`[SQTS] Detected change in ${path}. Recompiling...`);
-        try {
-            const now = new Date();
-            await compileProject({ ctx, cwd });
-            const duration = new Date().getTime() - now.getTime();
-            console.log(`[SQTS] Recompilation complete in ${duration}ms.`);
-        } catch (error) {
-            console.error("[SQTS] Error during recompilation:", error);
-        }
-    };
+    const reactToChange = debounce(
+        async (path: string) => {
+            if (path.endsWith(".sql")) {
+                console.log(
+                    `[SQTS] Detected change in ${path}. Updating schema...`,
+                );
+                try {
+                    ctx = await getCompileContext(cwd);
+                    console.log(`[SQTS] Schema updated successfully.`);
+                } catch (error) {
+                    console.error("[SQTS] Error updating schema:", error);
+                    return;
+                }
+            }
+
+            console.log(`[SQTS] Detected change in ${path}. Recompiling...`);
+            try {
+                const now = new Date();
+                await compileProject({ ctx, cwd });
+                const duration = new Date().getTime() - now.getTime();
+                console.log(`[SQTS] Recompilation complete in ${duration}ms.`);
+            } catch (error) {
+                console.error("[SQTS] Error during recompilation:", error);
+            }
+        },
+        {
+            wait: 300,
+        },
+    );
 
     watcher.on("add", reactToChange);
     watcher.on("change", reactToChange);
