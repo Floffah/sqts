@@ -1,11 +1,12 @@
 {
     "$schema": "https://unpkg.com/@changesets/config@3.1.2/schema.json",
-    "changelog": "@changesets/cli/changelog",
+    "changelog": ["@changesets/changelog-github", { "repo": "Floffah/sqts" }],
     "commit": false,
     "fixed": [["@sqts/core", "@sqts/sql"]],
     "linked": [],
     "access": "public",
     "baseBranch": "main",
     "updateInternalDependencies": "patch",
-    "ignore": ["docs", "example-*"]
+    "ignore": ["docs", "example-*"],
+    "privatePackages": false
 }
