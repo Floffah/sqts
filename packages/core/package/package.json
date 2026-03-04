@@ -1,0 +1,112 @@
+{
+    "name": "@sqts/core",
+    "version": "0.0.2",
+    "description": "Type-safe SQL queries for TypeScript",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Floffah/sqts.git"
+    },
+    "homepage": "https://floffah.github.io/sqts",
+    "keywords": [
+        "sql",
+        "typescript",
+        "type-safe",
+        "database",
+        "codegen"
+    ],
+    "license": "MIT",
+    "files": [
+        "dist",
+        "package.json",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "scripts": {
+        "build": "tsdown --minify",
+        "dev": "tsdown --watch",
+        "test": "bun test",
+        "typecheck": "tsc --noEmit",
+        "lint:package": "attw --pack . && publint --package ."
+    },
+    "dependencies": {
+        "@fastify/deepmerge": "^3.2.1",
+        "@sqts/sql": "workspace:*",
+        "@tanstack/pacer": "^0.19.0",
+        "chokidar": "^5.0.0",
+        "commander": "^14.0.3",
+        "tinyglobby": "^0.2.15",
+        "ts-morph": "^27.0.2",
+        "unconfig": "^7.5.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5.9.3"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "esbuild": "^0.27.3",
+        "nanoid": "^5.1.6",
+        "tsdown": "^0.20.3",
+        "typescript": "^5.9.3"
+    },
+    "bin": {
+        "sqts": "dist/cli.js"
+    },
+    "module": "./dist/index.js",
+    "main": "./dist/index.cjs",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "default": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            }
+        },
+        "./adapters/bun-sqlite": {
+            "import": {
+                "types": "./dist/adapters/bun-sqlite.d.ts",
+                "default": "./dist/adapters/bun-sqlite.js"
+            },
+            "default": {
+                "types": "./dist/adapters/bun-sqlite.d.cts",
+                "default": "./dist/adapters/bun-sqlite.cjs"
+            }
+        },
+        "./config": {
+            "import": {
+                "types": "./dist/config.d.ts",
+                "default": "./dist/config.js"
+            },
+            "default": {
+                "types": "./dist/config.d.cts",
+                "default": "./dist/config.cjs"
+            }
+        },
+        "./*": {
+            "import": {
+                "types": "./dist/*.d.ts",
+                "default": "./dist/*.js"
+            },
+            "default": {
+                "types": "./dist/*.d.cts",
+                "default": "./dist/*.cjs"
+            }
+        }
+    },
+    "types": "index.d.cts",
+    "typesVersions": {
+        "*": {
+            "*": [
+                "dist/*"
+            ]
+        }
+    },
+    "publishConfig": {
+        "provenance": true
+    }
+}

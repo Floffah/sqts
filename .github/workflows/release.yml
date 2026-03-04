@@ -27,3 +27,6 @@ jobs:
 
       - name: Create Release Pull Request
         uses: changesets/action@v1
+        id: changesets
+        with:
+          publish: bun release
