@@ -13,7 +13,7 @@
         "test": "turbo test",
         "test-examples": "bun run build && turbo test --filter=example-*",
         "check": "bun run lint && bun run build && bun run test",
-        "release": "bun run build && bun run scripts/workspacerefs.ts"
+        "release": "bun run build && bun run scripts/workspacerefs.ts && changeset publish"
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.18.2",
